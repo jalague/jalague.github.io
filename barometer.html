@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Bean Boy Barometer — John LaGue</title>
+<meta name="description" content="A quick self-assessment across the six SLEEPS pillars: sleep, love, exercise, engaging your brain, plants, and stopping health detractors.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .quiz-wrap { max-width: 660px; margin: 0 auto; }
+  .progress-rail { height: 4px; background: var(--paper-2); border-radius: 99px; overflow: hidden; margin: 22px 0 8px; }
+  .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width .35s ease; }
+  .progress-meta { display: flex; justify-content: space-between; font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--stone); margin-bottom: 28px; }
+  .pillar-tag { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+  .pillar-letter { font-family: "IBM Plex Mono", monospace; font-size: 26px; font-weight: 600; color: var(--accent); line-height: 1; }
+  .pillar-name { font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--stone); }
+  .q-text { font-size: 23px; font-weight: 800; letter-spacing: -.02em; line-height: 1.3; margin: 0 0 22px; }
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    text-align: left; background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 15px 18px; font: inherit; font-size: 16px; color: var(--ink); cursor: pointer;
+    display: flex; align-items: center; gap: 13px; transition: border-color .12s, background .12s;
+  }
+  .opt:hover { border-color: var(--accent); background: #fff; }
+  .opt .dot { width: 15px; height: 15px; border-radius: 99px; border: 2px solid var(--line); flex: none; }
+  .opt:hover .dot { border-color: var(--accent); }
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .link-btn { background: none; border: none; font: inherit; font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--stone); cursor: pointer; padding: 6px 0; }
+  .link-btn:hover { color: var(--accent); }
+
+  /* result card */
+  .card-shell { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 30px; }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .score-num { font-family: "IBM Plex Mono", monospace; font-size: 58px; font-weight: 600; line-height: 1; color: var(--accent); letter-spacing: -.02em; }
+  .score-of { font-family: "IBM Plex Mono", monospace; font-size: 16px; color: var(--stone); }
+  .rank { font-size: 25px; font-weight: 900; letter-spacing: -.03em; margin: 12px 0 4px; }
+  .rank-sub { color: var(--stone); font-size: 15.5px; margin: 0; }
+  .bars { display: grid; gap: 11px; margin: 26px 0 4px; }
+  .bar-row { display: grid; grid-template-columns: 132px 1fr 34px; align-items: center; gap: 12px; }
+  .bar-label { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--stone); text-transform: uppercase; letter-spacing: .07em; }
+  .bar-track { display: block; height: 9px; background: var(--paper-2); border-radius: 99px; overflow: hidden; }
+  .bar-fill { display: block; height: 100%; border-radius: 99px; background: var(--accent); width: 0; transition: width .7s cubic-bezier(.2,.8,.2,1); }
+  .bar-fill.weak { background: #c2703f; }
+  .bar-val { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--stone); text-align: right; }
+  .focus-box { background: var(--paper-2); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 16px 18px; margin: 24px 0 0; }
+  .focus-box h4 { margin: 0 0 6px; font-size: 15px; }
+  .focus-box p { margin: 0; color: var(--stone); font-size: 14.5px; }
+  .card-foot { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--line); font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--stone); }
+  .share-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+  .toast { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--accent); margin-top: 10px; min-height: 16px; }
+  @media (max-width: 560px) {
+    .bar-row { grid-template-columns: 96px 1fr 30px; }
+    .q-text { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <img class="brand-avatar" src="img/john-lague-avatar.jpg" alt="John LaGue" width="30" height="30">
+      <span>John LaGue</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html#experience">Experience</a>
+      <a href="projects.html">Projects</a>
+      <a href="personal.html">Personal</a>
+      <a href="bean-boy.html">Bean Boy</a>
+    </div>
+    <span class="updated">Last updated: Aug 15, 2026</span>
+  </div>
+</nav>
+
+<main>
+<section class="block">
+  <div class="wrap quiz-wrap">
+
+    <!-- INTRO -->
+    <div id="intro">
+      <span class="eyebrow">Self-assessment</span>
+      <h2>The Bean Boy Barometer</h2>
+      <p class="section-intro">Twenty-one quick questions across the six <a href="bean-boy.html">SLEEPS</a> pillars — Sleep, Love, Exercise, Engage your brain, Plants, and Stop health detractors. You'll get a score, a breakdown by pillar, and the one thing worth fixing first. Takes about two minutes, and nothing you enter leaves your browser.</p>
+      <button class="btn solid" id="startBtn" style="cursor:pointer;">Start the assessment</button>
+      <p style="margin-top:18px;"><a class="back-link" href="bean-boy.html">← Read the full framework first</a></p>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz" hidden>
+      <div class="progress-rail"><div class="progress-fill" id="pFill"></div></div>
+      <div class="progress-meta"><span id="pCount">Question 1 of 21</span><span id="pPct">0%</span></div>
+      <div class="pillar-tag"><span class="pillar-letter" id="pLetter">S</span><span class="pillar-name" id="pName">Sleep</span></div>
+      <h3 class="q-text" id="qText">—</h3>
+      <div class="opts" id="opts"></div>
+      <div class="nav-row">
+        <button class="link-btn" id="backBtn">← Back</button>
+        <button class="link-btn" id="restartBtn">Start over</button>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result" hidden>
+      <span class="eyebrow">Your result</span>
+      <h2 style="margin-bottom:20px;">The Bean Boy Barometer</h2>
+      <div class="card-shell" id="card">
+        <div class="card-top">
+          <div>
+            <div class="score-num" id="scoreNum">0<span class="score-of"> / 100</span></div>
+            <div class="rank" id="rankTitle">—</div>
+            <p class="rank-sub" id="rankSub">—</p>
+          </div>
+          <svg width="74" height="74" viewBox="0 0 74 74" aria-hidden="true" style="flex:none;">
+            <circle cx="37" cy="37" r="31" fill="none" stroke="#dcdfd6" stroke-width="6"/>
+            <circle id="ring" cx="37" cy="37" r="31" fill="none" stroke="#196e6a" stroke-width="6"
+                    stroke-linecap="round" stroke-dasharray="195" stroke-dashoffset="195"
+                    transform="rotate(-90 37 37)" style="transition:stroke-dashoffset .9s ease;"/>
+            <text x="37" y="41" text-anchor="middle" font-family="IBM Plex Mono, monospace"
+                  font-size="15" font-weight="600" fill="#21272e" id="ringPct">0</text>
+          </svg>
+        </div>
+
+        <div class="bars" id="bars"></div>
+
+        <div class="focus-box">
+          <h4 id="focusTitle">Start here</h4>
+          <p id="focusText">—</p>
+        </div>
+
+        <div class="card-foot">
+          <span>BEAN BOY BAROMETER</span>
+          <span>johnlague.com/barometer</span>
+        </div>
+      </div>
+
+      <div class="share-row">
+        <button class="btn solid" id="copyBtn" style="cursor:pointer;">Copy shareable summary</button>
+        <button class="btn" id="againBtn" style="cursor:pointer;">Retake</button>
+      </div>
+      <div class="toast" id="toast"></div>
+      <p style="margin-top:22px; color:var(--stone); font-size:14.5px;">This is a personal framework, not medical advice. If something here worries you, talk to an actual doctor — I'm a guy who likes beans.</p>
+    </div>
+
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <strong style="font-size:20px; color:#fff;">Get in touch.</strong><br>
+      <a href="mailto:john@johnlague.com">john@johnlague.com</a>
+      <div class="foot-note">I'm open to helping early stage companies with acquisition.</div>
+    </div>
+    <div class="foot-links">
+      <a href="index.html">Home</a>
+      <a href="bean-boy.html">Bean Boy</a>
+      <a href="personal.html">Personal</a>
+    </div>
+    <div class="copyright">© johnlague.com · Pittsburgh, PA</div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var QUESTIONS = [
+    // --- Sleep ---
+    { p:"S", pillar:"Sleep", q:"How many hours do you sleep on a typical night?",
+      opts:[["Under 6",0],["6 to 7",1],["7 to 8",2],["8 or more",3]] },
+    { p:"S", pillar:"Sleep", q:"How consistent are your bedtime and wake time?",
+      opts:[["All over the place",0],["Weekdays only",1],["Mostly consistent",2],["Same time every day",3]] },
+    { p:"S", pillar:"Sleep", q:"How often do you wake up feeling rested?",
+      opts:[["Rarely",0],["Some mornings",1],["Most mornings",2],["Almost always",3]] },
+
+    // --- Love ---
+    { p:"L", pillar:"Love", q:"How often do you have meaningful contact with family or close friends?",
+      opts:[["Rarely",0],["Monthly",1],["Weekly",2],["Most days",3]] },
+    { p:"L", pillar:"Love", q:"Are you spending time on a passion project right now?",
+      opts:[["Nothing going",0],["Thinking about one",1],["Dabbling here and there",2],["Yes, regularly",3]] },
+    { p:"L", pillar:"Love", q:"How often do you give generously — money, time, or help?",
+      opts:[["Rarely",0],["Once in a while",1],["Regularly",2],["It's a habit",3]] },
+
+    // --- Exercise ---
+    { p:"E", pillar:"Exercise", q:"Roughly how many steps do you get on a typical day?",
+      opts:[["Under 4k",0],["4k to 6k",1],["6k to 8k",2],["8k or more",3]] },
+    { p:"E", pillar:"Exercise", q:"How often do you strength train?",
+      opts:[["Rarely or never",0],["Once a week",1],["Twice a week",2],["Three or more",3]] },
+    { p:"E", pillar:"Exercise", q:"How often do you get vigorous cardio — enough to be out of breath?",
+      opts:[["Rarely or never",0],["Once a week",1],["Twice a week",2],["Three or more",3]] },
+    { p:"E", pillar:"Exercise", q:"How often do you stretch or do mobility work?",
+      opts:[["Basically never",0],["Occasionally",1],["A few times a week",2],["Daily",3]] },
+
+    // --- Engage your brain ---
+    { p:"G", pillar:"Engage", q:"How often do you read books?",
+      opts:[["Rarely",0],["A few times a month",1],["A few times a week",2],["Daily",3]] },
+    { p:"G", pillar:"Engage", q:"How often do you meditate or sit quietly on purpose?",
+      opts:[["Never",0],["Occasionally",1],["A few times a week",2],["Daily",3]] },
+    { p:"G", pillar:"Engage", q:"Are you actively learning a skill that keeps getting harder?",
+      opts:[["Not right now",0],["Casually",1],["Yes, on and off",2],["Yes, deliberately",3]] },
+
+    // --- Plants ---
+    { p:"P", pillar:"Plants", q:"How often do you eat legumes — beans, lentils, chickpeas?",
+      opts:[["Almost never",0],["Once a week",1],["A few times a week",2],["Most days",3]] },
+    { p:"P", pillar:"Plants", q:"How much color and variety is on your plate — greens, berries, herbs, spices?",
+      opts:[["Pretty beige",0],["Some variety",1],["Good variety",2],["Across the rainbow, daily",3]] },
+    { p:"P", pillar:"Plants", q:"How often do you eat whole grains, nuts, or seeds?",
+      opts:[["Rarely",0],["Once a week",1],["A few times a week",2],["Most days",3]] },
+    { p:"P", pillar:"Plants", q:"How often do you spend real time outdoors in nature?",
+      opts:[["Rarely",0],["Monthly",1],["Weekly",2],["Most days",3]] },
+
+    // --- Stop health detractors ---
+    { p:"X", pillar:"Stop", q:"How much alcohol do you drink?",
+      opts:[["Regularly",0],["Weekly",1],["A few times a year",2],["None",3]] },
+    { p:"X", pillar:"Stop", q:"How often do you eat ultra-processed foods?",
+      opts:[["Most meals",0],["Most days",1],["Occasionally",2],["Rarely or never",3]] },
+    { p:"X", pillar:"Stop", q:"How often do you eat red or processed meat — bacon, deli meat, steak?",
+      opts:[["Most days",0],["A few times a week",1],["Occasionally",2],["Rarely or never",3]] },
+    { p:"X", pillar:"Stop", q:"Do you wear sunscreen and protect your skin from UV?",
+      opts:[["Never think about it",0],["Only at the beach",1],["Most sunny days",2],["Daily, SPF 30+",3]] }
+  ];
+
+  var PILLARS = {
+    S:{ name:"Sleep", letter:"S",
+        fix:"Anchor your wake time first — same time every day, weekends included. Consistency does more than any supplement or gadget." },
+    L:{ name:"Love", letter:"L",
+        fix:"Put one recurring thing on the calendar: a standing call, a weekly dinner, a volunteer shift. Strong bonds are one of the most reliable longevity signals we have." },
+    E:{ name:"Exercise", letter:"E",
+        fix:"Start with steps — they're the cheapest win. Then add two full-body strength sessions a week with progressive overload." },
+    G:{ name:"Engage", letter:"E",
+        fix:"Ten pages a day beats an ambitious plan you abandon. Pick something slightly too hard and let it get easier." },
+    P:{ name:"Plants", letter:"P",
+        fix:"Add beans. Legumes sit at the top of the life-expectancy charts, they're cheap, and they're the single easiest upgrade on this list." },
+    X:{ name:"Stop detractors", letter:"S",
+        fix:"Subtraction beats addition. Pick the one detractor you'd least like to defend out loud and cut it first — that's step one of the order of operations for a reason." }
+  };
+
+  // second E maps to "Engage" bucket
+  function bucket(q){ return (q.pillar === "Engage") ? "G" : q.p; }
+
+  var idx = 0, answers = [];
+  var $ = function(id){ return document.getElementById(id); };
+
+  function show(which){
+    ["intro","quiz","result"].forEach(function(s){ $(s).hidden = (s !== which); });
+  }
+
+  function render(){
+    var q = QUESTIONS[idx];
+    $("pLetter").textContent = PILLARS[bucket(q)].letter;
+    $("pName").textContent = PILLARS[bucket(q)].name;
+    $("qText").textContent = q.q;
+    $("pCount").textContent = "Question " + (idx + 1) + " of " + QUESTIONS.length;
+    var pct = Math.round((idx / QUESTIONS.length) * 100);
+    $("pFill").style.width = pct + "%";
+    $("pPct").textContent = pct + "%";
+    $("backBtn").style.visibility = idx === 0 ? "hidden" : "visible";
+
+    var wrap = $("opts");
+    wrap.innerHTML = "";
+    q.opts.forEach(function(o){
+      var b = document.createElement("button");
+      b.className = "opt";
+      b.type = "button";
+      b.innerHTML = '<span class="dot"></span><span>' + o[0] + '</span>';
+      b.addEventListener("click", function(){
+        answers[idx] = o[1];
+        if (idx < QUESTIONS.length - 1) { idx++; render(); }
+        else { finish(); }
+      });
+      wrap.appendChild(b);
+    });
+  }
+
+  function finish(){
+    var tot = {}, max = {};
+    QUESTIONS.forEach(function(q, i){
+      var b = bucket(q);
+      tot[b] = (tot[b] || 0) + (answers[i] || 0);
+      max[b] = (max[b] || 0) + 3;
+    });
+
+    var sum = 0, maxSum = 0;
+    Object.keys(max).forEach(function(k){ sum += tot[k]; maxSum += max[k]; });
+    var score = Math.round((sum / maxSum) * 100);
+
+    // Weakest pillar. Ties break toward the order of operations:
+    // stop detractors first, then plants, movement, sleep, and so on.
+    var PRIORITY = ["X","P","E","S","G","L"];
+    var weakest = null, weakestPct = 2;
+    PRIORITY.forEach(function(k){
+      if (!max[k]) return;
+      var pc = tot[k] / max[k];
+      if (pc < weakestPct) { weakestPct = pc; weakest = k; }
+    });
+    var perfect = (weakestPct >= 1);
+
+    var rank, sub;
+    if (score >= 88)      { rank = "Full Bean";        sub = "You are operating at Bean Boy parity. Genuinely impressive — now just keep it boring and repeatable."; }
+    else if (score >= 72) { rank = "Well Seasoned";    sub = "Strong habits with a soft spot or two. Tighten the weakest pillar and you're in rare territory."; }
+    else if (score >= 55) { rank = "Simmering";        sub = "A solid base and clear room to grow. One pillar is doing most of the dragging."; }
+    else if (score >= 35) { rank = "Soaking Overnight"; sub = "The foundation is there but it needs time. Start with subtraction, not optimization."; }
+    else                  { rank = "Raw Bean";         sub = "Plenty of upside — which is good news. Pick step one and ignore everything else for now."; }
+
+    $("scoreNum").innerHTML = score + '<span class="score-of"> / 100</span>';
+    $("rankTitle").textContent = rank;
+    $("rankSub").textContent = sub;
+    $("ringPct").textContent = score;
+    $("ring").style.strokeDashoffset = String(195 - (195 * score / 100));
+
+    var order = ["S","L","E","G","P","X"];
+    var bars = $("bars");
+    bars.innerHTML = "";
+    order.forEach(function(k){
+      if (!max[k]) return;
+      var pc = Math.round((tot[k] / max[k]) * 100);
+      var row = document.createElement("div");
+      row.className = "bar-row";
+      row.innerHTML =
+        '<span class="bar-label">' + PILLARS[k].name + '</span>' +
+        '<span class="bar-track"><span class="bar-fill' + (k === weakest ? ' weak' : '') + '"></span></span>' +
+        '<span class="bar-val">' + pc + '%</span>';
+      bars.appendChild(row);
+      setTimeout(function(){ row.querySelector(".bar-fill").style.width = pc + "%"; }, 60);
+    });
+
+    if (perfect) {
+      $("focusTitle").textContent = "Nothing to fix — just keep it";
+      $("focusText").textContent = "Every pillar is maxed out. The hard part now is staying boring: protect the habits you already have and don't let a busy season quietly erase them.";
+    } else {
+      $("focusTitle").textContent = "Start here: " + PILLARS[weakest].name;
+      $("focusText").textContent = PILLARS[weakest].fix;
+    }
+
+    window.__bbSummary = "Bean Boy Barometer: " + score + "/100 — " + rank +
+      (perfect ? ". All six pillars maxed." : ". Weakest pillar: " + PILLARS[weakest].name + ".") +
+      " Take it at johnlague.com/barometer";
+
+    show("result");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  $("startBtn").addEventListener("click", function(){ idx = 0; answers = []; show("quiz"); render(); });
+  $("backBtn").addEventListener("click", function(){ if (idx > 0) { idx--; render(); } });
+  $("restartBtn").addEventListener("click", function(){ idx = 0; answers = []; show("intro"); });
+  $("againBtn").addEventListener("click", function(){ idx = 0; answers = []; show("quiz"); render(); });
+
+  $("copyBtn").addEventListener("click", function(){
+    var text = window.__bbSummary || "";
+    function done(){ $("toast").textContent = "Copied to clipboard."; setTimeout(function(){ $("toast").textContent = ""; }, 2600); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else { fallback(); }
+    function fallback(){
+      var ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); done(); }
+      catch (e) { $("toast").textContent = text; }
+      document.body.removeChild(ta);
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

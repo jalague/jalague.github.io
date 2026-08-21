@@ -1,0 +1,13 @@
+/resume            /#experience                       301
+/resume/           /#experience                       301
+/pages/blog        /blog/                             301
+/pages/blog2       /blog/                             301
+/pages/other       /personal.html                     301
+/pages/blog/posts/how_to_get_good_at_climbing/*  /blog/how-to-get-good-at-climbing.html  301
+/pages/blog/posts/complete_climbing_anthology/*  /blog/climbing-anthology.html           301
+/pages/blog/posts/predictingutilities/*          /blog/predicting-utilities.html         301
+/pages/blog2/posts/cold_showers/*                /blog/cold-showers.html                 301
+/barometer         /barometer.html                    200
+/bean-boy          /bean-boy.html                     200
+/projects          /projects.html                     200
+/personal          /personal.html                     200

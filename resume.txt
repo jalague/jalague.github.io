@@ -1,0 +1,107 @@
+JOHN LAGUE
+Pittsburgh, PA  |  john@johnlague.com  |  johnlague.com
+LinkedIn: linkedin.com/in/john-lague  |  GitHub: github.com/jalague
+
+Last updated: August 2026
+
+
+SUMMARY
+-------
+COO at Trainwell. Previously co-founder of Community Phone (Y Combinator W19).
+Data scientist by training, operator and growth person by trade. Open to helping
+early stage companies with acquisition.
+
+
+SELECTED RESULTS
+----------------
+  $1k -> $10M ARR      at Trainwell as first growth leader; $30M+ revenue since
+  3 -> 125 employees   at Trainwell, scaled as COO
+  2 publications       IEEE and Towards Data Science
+
+
+EXPERIENCE
+----------
+
+Chief Operating Officer — Trainwell                          Feb 2021 - Present
+  * Trainwell is a 1-on-1 remote personal trainer and fitness app that has helped
+    tens of thousands of people build healthier habits.
+  * Drove B2C ARR from $1k to $10M as growth leader before hiring a head of
+    growth; scaled to $30M+ in revenue in the years since.
+  * Scaled the company from 3 to 125 employees as COO.
+  * Acquired customers on both $0 and $6.5M marketing budgets.
+  * Supported execution of a large-scale partnership with Peloton.
+  * Oversee all marketing/growth, customer support, and operations.
+
+VP of Business Development — Trainwell                     Feb 2020 - Nov 2021
+  * First full-time hire.
+  * Found initial user traction using the Bullseye framework outlined by
+    Gabriel Weinberg (DuckDuckGo).
+
+Data Analyst — PNC Bank                                     Feb 2020 - Sep 2020
+  * Extracted, cleaned, and analyzed millions of data points across home equity,
+    mortgage, and credit card products (Python, T-SQL, Hadoop, PL/SQL).
+  * Defined the strategy for identifying mortgages with imperfect insurance
+    termination dates, saving customers thousands.
+  * Key resource for the SBA Paycheck Protection Program — processed and
+    approved hundreds of small-business loans.
+
+Founder — PocketPosture                                     Jul 2019 - Aug 2020
+  * Ecommerce store selling posture-improvement devices. Broke even on sales.
+  * Primarily a space to experiment with unconventional marketing ideas;
+    resulted in a published Towards Data Science article.
+
+Co-founder & COO — Community Phone (Y Combinator W19)       Dec 2017 - Jul 2019
+  * Affordable cell phone service (MVNO). Bootstrapped from $0 to $300K ARR
+    in one year.
+  * Wore many hats: sales, customer success, marketing, business development,
+    analytics, retail management, recruiting, and product sourcing.
+  * Front-page coverage in the Boston Globe.
+
+Data Science Practicum Team Lead — LA County Elections      Nov 2017 - May 2018
+  * Cut ballot collection times by 12% in the 2018 primary elections using the
+    Google Maps API and k-means clustering.
+
+Teaching Assistant — University of San Francisco            Jan 2015 - Dec 2017
+  * TA'd Business Statistics, Calculus, Statistics with Applications, Intro to
+    Data Science, and Bioinformatics.
+  * Lectured for the graduate Bioinformatics course as an undergraduate.
+
+
+EDUCATION
+---------
+Y Combinator — W19 batch (Community Phone)
+University of San Francisco — B.S. Data Science
+  Summa Cum Laude  |  GPA 3.85  |  Co-founded the Data Science Association
+
+
+SKILLS
+------
+Growth strategy, performance marketing, funnel optimization, SEO, influencer
+marketing, Python (advanced), SQL (MySQL, PostgreSQL, T-SQL), R, predictive
+modeling, Google Analytics.
+
+
+PUBLICATIONS
+------------
+"Is it possible to predict poor posture?" — Towards Data Science, Dec 2019
+"Applying Deep Learning to Public Health: Using Unbalanced Demographic Data to
+  Predict Thyroid Disorder" — IEEE IEMCON, 2018
+
+
+AWARDS
+------
+Most Impactful Graduate Research award — USF, 2017
+Pi Mu Epsilon mathematics honor society — 2016
+2nd place, Data Institute Data Science Hackathon — 2017
+
+
+SELECTED PRESS
+--------------
+Pittsburgh Business Times — Peloton / Trainwell partnership, 2026
+TechCrunch — CoPilot raises $6.5M Series A-1, 2023
+Crunchbase News — DeltaTrainer $3.3M seed, 2021
+Pittsburgh Business Times — Anytime Fitness partnership, 2021
+90.5 WESA (NPR) — AI-assisted personal training, 2020
+Boston Globe — front-page feature on Community Phone, 2019
+Cambridge Day — Harvard Square pop-up retail, 2019
+BostInno — Community Phone feature, 2018
