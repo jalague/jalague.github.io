@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The bathroom door problem</title>
+<meta name="description" content="A Monte Carlo simulation of how often two restaurant patrons reach for the bathroom door at the same moment.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --hall:#15332c;        /* bistro green, the room we're in */
+  --hall-deep:#0e241f;
+  --plaster:#ece5d8;     /* wall panel */
+  --plaster-dim:#d9d0bf;
+  --brass:#c68f2d;
+  --brass-soft:#e0b45f;
+  --oxblood:#96202e;
+  --ink:#101f1b;
+  --line:rgba(236,229,216,.18);
+  --radius:3px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--hall);
+  color:var(--plaster);
+  font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  font-variant-numeric:tabular-nums;
+}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 72px}
+
+/* ---------- masthead ---------- */
+header.top{
+  display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 28px;
+  padding-bottom:18px;margin-bottom:22px;
+  border-bottom:1px solid var(--line);
+}
+h1{
+  font-family:"Bricolage Grotesque",Archivo,sans-serif;
+  font-weight:800;
+  font-size:clamp(34px,6.2vw,62px);
+  line-height:.92;
+  letter-spacing:-.022em;
+  margin:0;
+  color:var(--plaster);
+}
+h1 .swing{color:var(--brass-soft)}
+.standfirst{max-width:46ch;margin:0;color:rgba(236,229,216,.72);font-size:15.5px}
+
+/* ---------- layout ---------- */
+.grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:940px){.grid{grid-template-columns:1fr}}
+
+/* ---------- controls ---------- */
+.panel{
+  background:var(--hall-deep);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+}
+.controls{padding:4px 0 10px}
+fieldset{border:0;border-top:1px solid var(--line);margin:0;padding:14px 16px 4px}
+fieldset:first-of-type{border-top:0}
+legend{
+  font-family:"Bricolage Grotesque",Archivo,sans-serif;font-weight:600;font-size:14px;
+  color:var(--brass-soft);padding:0;margin:0 0 4px;
+}
+.ctl{margin:0 0 13px}
+.ctl label{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:13.5px;color:rgba(236,229,216,.86)}
+.ctl .val{color:var(--plaster);font-weight:600;font-size:13.5px;white-space:nowrap}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:18px;margin:3px 0 0;background:transparent;cursor:grab;
+}
+input[type=range]:active{cursor:grabbing}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:rgba(236,229,216,.28)}
+input[type=range]::-moz-range-track{height:2px;background:rgba(236,229,216,.28)}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--brass);
+  margin-top:-5.5px;border:0;
+}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--brass);border:0}
+input[type=range]:focus-visible{outline:2px solid var(--brass-soft);outline-offset:4px}
+.check{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;color:rgba(236,229,216,.86);cursor:pointer}
+.check input{margin:3px 0 0;accent-color:var(--brass);width:15px;height:15px}
+.hint{font-size:12.5px;color:rgba(236,229,216,.5);margin:-4px 0 12px}
+
+/* ---------- stage ---------- */
+.stage{overflow:hidden}
+.stagebar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:10px 12px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.18)
+}
+button{
+  font:inherit;font-size:13.5px;font-weight:500;color:var(--ink);background:var(--plaster-dim);
+  border:0;border-radius:var(--radius);padding:7px 14px;cursor:pointer;
+}
+button:hover{background:var(--plaster)}
+button:focus-visible{outline:2px solid var(--brass-soft);outline-offset:2px}
+button.ghost{background:transparent;color:rgba(236,229,216,.8);box-shadow:inset 0 0 0 1px var(--line)}
+button.ghost:hover{background:rgba(236,229,216,.08);color:var(--plaster)}
+button.go{background:var(--brass);color:#221703;font-weight:600}
+button.go:hover{background:var(--brass-soft)}
+button[disabled]{opacity:.45;cursor:not-allowed}
+select{
+  font:inherit;font-size:13px;color:var(--plaster);background:transparent;
+  border:1px solid var(--line);border-radius:var(--radius);padding:6px 8px
+}
+select option{color:#111;background:#fff}
+.clock{font-weight:600;font-size:14px;color:var(--brass-soft);margin-left:auto;display:flex;gap:14px;align-items:center}
+.clock .bumps{color:var(--plaster)}
+canvas{display:block;width:100%;height:auto}
+.scrub{width:100%;height:3px;background:rgba(236,229,216,.16);position:relative}
+.scrub i{position:absolute;inset:0 100% 0 0;background:var(--brass);display:block}
+.emojikey{display:flex;flex-wrap:wrap;gap:6px 18px;padding:9px 12px;font-size:12.5px;
+  color:rgba(236,229,216,.62);border-top:1px solid var(--line);background:rgba(0,0,0,.12)}
+
+/* ---------- results ---------- */
+.results{margin-top:22px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:22px}
+@media (max-width:940px){.results{grid-template-columns:1fr}}
+.readout{padding:20px 20px 18px}
+.big{
+  font-family:"Bricolage Grotesque",Archivo,sans-serif;font-weight:800;
+  font-size:clamp(60px,11vw,104px);line-height:.85;letter-spacing:-.03em;color:var(--brass-soft);
+  margin:2px 0 8px;
+}
+.big.idle{color:rgba(236,229,216,.28)}
+.bigcap{max-width:30ch;color:rgba(236,229,216,.8);margin:0 0 18px;font-size:14.5px}
+dl.stats{display:grid;grid-template-columns:1fr auto;gap:9px 16px;margin:0;padding-top:16px;border-top:1px solid var(--line);font-size:13.5px}
+dl.stats dt{color:rgba(236,229,216,.66);margin:0}
+dl.stats dd{margin:0;text-align:right;font-weight:600}
+.chartwrap{padding:18px 20px 16px}
+.chart-h{font-family:"Bricolage Grotesque",Archivo,sans-serif;font-weight:600;font-size:16px;margin:0 0 2px}
+.chart-s{margin:0 0 12px;font-size:13.5px;color:rgba(236,229,216,.62);max-width:48ch}
+.legend{display:flex;gap:18px;font-size:12.5px;color:rgba(236,229,216,.66);margin-top:10px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:7px}
+.key{width:16px;height:0;border-top:2px solid var(--brass)}
+.key.dash{border-top:2px dashed rgba(236,229,216,.55)}
+.key.thin{border-top:1.6px solid rgba(198,143,45,.45)}
+.key.dot{width:9px;height:9px;border:0;border-radius:50%;background:var(--oxblood)}
+
+/* ---------- notes ---------- */
+.notes{margin-top:40px;padding-top:22px;border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:26px 34px}
+.notes h3{font-family:"Bricolage Grotesque",Archivo,sans-serif;font-weight:600;font-size:15px;margin:0 0 7px;color:var(--brass-soft)}
+.notes p,.notes li{font-size:13.5px;color:rgba(236,229,216,.72);margin:0 0 9px;max-width:62ch}
+.notes ul{margin:0;padding-left:17px}
+.notes li{margin-bottom:5px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>The bathroom<br>door <span class="swing">problem</span></h1>
+  <p class="standfirst">Past a certain number of diners, reaching for the restroom door at the same moment as the person coming out stops being bad luck and starts being the schedule. Here is where that line sits.</p>
+</header>
+
+<div class="grid">
+
+  <!-- ============ CONTROLS ============ -->
+  <form class="panel controls" id="controls" aria-label="Simulation settings">
+    <fieldset>
+      <legend>The room</legend>
+      <div class="ctl">
+        <label for="seats">People seated at once <span class="val" id="seats-v">90</span></label>
+        <input type="range" id="seats" min="2" max="250" step="1" value="90">
+      </div>
+      <div class="ctl">
+        <label for="service">Service runs for <span class="val" id="service-v">180 min</span></label>
+        <input type="range" id="service" min="60" max="360" step="10" value="180">
+      </div>
+      <div class="ctl">
+        <label for="meal">Each table stays <span class="val" id="meal-v">75 min</span></label>
+        <input type="range" id="meal" min="20" max="180" step="5" value="75">
+      </div>
+      <p class="hint" id="turnover">≈ 216 patrons pass through tonight.</p>
+      <div class="ctl">
+        <label for="walk">Walk from table to door <span class="val" id="walk-v">45 s</span></label>
+        <input type="range" id="walk" min="5" max="180" step="5" value="45">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>The restrooms</legend>
+      <div class="ctl">
+        <label for="rooms">Restrooms <span class="val" id="rooms-v">2</span></label>
+        <input type="range" id="rooms" min="1" max="4" step="1" value="2">
+      </div>
+      <label class="check"><input type="checkbox" id="auto"> Size them to the room, the way a building code would</label>
+      <div class="ctl" style="margin-top:11px">
+        <label for="perstall">One stall per <span class="val" id="perstall-v">30 seats</span></label>
+        <input type="range" id="perstall" min="10" max="80" step="5" value="30">
+      </div>
+      <div class="ctl">
+        <label for="stalls">Stalls in each <span class="val" id="stalls-v">3</span></label>
+        <input type="range" id="stalls" min="1" max="8" step="1" value="3">
+      </div>
+      <label class="check"><input type="checkbox" id="gendered" checked> Men's and women's, so nobody can take the free one</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Inside</legend>
+      <div class="ctl">
+        <label for="toilet">Time at the toilet <span class="val" id="toilet-v">70 s</span></label>
+        <input type="range" id="toilet" min="15" max="240" step="5" value="70">
+      </div>
+      <div class="ctl">
+        <label for="plong">Chance it's the long version <span class="val" id="plong-v">12%</span></label>
+        <input type="range" id="plong" min="0" max="60" step="1" value="12">
+      </div>
+      <div class="ctl">
+        <label for="pwash">Chance of washing hands <span class="val" id="pwash-v">75%</span></label>
+        <input type="range" id="pwash" min="0" max="100" step="1" value="75">
+      </div>
+      <div class="ctl">
+        <label for="wash">Wash and dry takes <span class="val" id="wash-v">25 s</span></label>
+        <input type="range" id="wash" min="5" max="90" step="1" value="25">
+      </div>
+      <div class="ctl">
+        <label for="plinger">Chance of a mirror or phone stop <span class="val" id="plinger-v">10%</span></label>
+        <input type="range" id="plinger" min="0" max="60" step="1" value="10">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>The door</legend>
+      <div class="ctl">
+        <label for="door">A pass through the doorway takes <span class="val" id="door-v">2.5 s</span></label>
+        <input type="range" id="door" min="0.5" max="8" step="0.1" value="2.5">
+      </div>
+      <p class="hint">Two people whose passes overlap have met at the door. Wide doorways, vestibules and blind corners all live in this number.</p>
+      <div class="ctl">
+        <label for="trips">Trips per person per meal <span class="val" id="trips-v">1.2</span></label>
+        <input type="range" id="trips" min="0" max="4" step="0.1" value="1.2">
+      </div>
+      <div class="ctl">
+        <label for="sims">Services to simulate <span class="val" id="sims-v">200</span></label>
+        <input type="range" id="sims" min="20" max="1000" step="20" value="200">
+      </div>
+    </fieldset>
+  </form>
+
+  <!-- ============ STAGE ============ -->
+  <div>
+    <div class="panel stage">
+      <div class="stagebar">
+        <button type="button" id="play" class="go">Watch a service</button>
+        <button type="button" id="restart" class="ghost">Start over</button>
+        <button type="button" id="mute" class="ghost" aria-pressed="false" title="Collision sound effects">Sound: on</button>
+        <label class="sr" for="speed">Playback speed</label>
+        <select id="speed">
+          <option value="20">20× speed</option>
+          <option value="60" selected>60× speed</option>
+          <option value="150">150× speed</option>
+          <option value="400">400× speed</option>
+        </select>
+        <div class="clock"><span id="clock">5:30 PM</span><span class="bumps" id="bumps">0 door meetings</span></div>
+      </div>
+      <canvas id="stage" width="1000" height="600" role="img" aria-label="Overhead plan of a restaurant showing diners walking to the restrooms"></canvas>
+      <div class="scrub"><i id="scrub"></i></div>
+      <div class="emojikey" aria-hidden="true">
+        <span>💦 number one</span>
+        <span>💩 number two</span>
+        <span>🚰 washing up</span>
+        <span>🪞 lingering</span>
+        <span>⏳ waiting</span>
+        <span>😳 door collision</span>
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="panel readout">
+        <div class="big idle" id="headline">—</div>
+        <p class="bigcap" id="headcap">Run the simulation to find the odds that someone walks out of the restroom just as a patron is walking in.</p>
+        <button type="button" class="go" id="run">Run the simulation</button>
+        <dl class="stats">
+          <dt>Any door encounter, waiting included</dt><dd id="s-simul">—</dd>
+          <dt>Waited outside, then it opened on them</dt><dd id="s-wait">—</dd>
+          <dt>Doorway collisions per 100 trips</dt><dd id="s-per100">—</dd>
+          <dt>Collisions in one service</dt><dd id="s-perservice">—</dd>
+          <dt>Two people arriving at once (not counted above)</dt><dd id="s-samedir">—</dd>
+          <dt>Trips that had to queue</dt><dd id="s-queue">—</dd>
+          <dt>Gave up and went back to the table</dt><dd id="s-gaveup">—</dd>
+        </dl>
+      </div>
+
+      <div class="panel chartwrap">
+        <h2 class="chart-h">Where the room turns against you</h2>
+        <p class="chart-s" id="chart-sub">Every setting held still except how many people are seated.</p>
+        <canvas id="curve" width="820" height="420"></canvas>
+        <div class="legend">
+          <span><i class="key"></i>Someone leaving as you enter</span>
+          <span><i class="key thin"></i>Either kind, waiting included</span>
+          <span><i class="key dash"></i>Poisson estimate</span>
+          <span><i class="key dot"></i>Your room</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div>
+        <h3>How a trip is modelled</h3>
+        <p>Tables fill, empty and refill across the service, so the number seated stays roughly constant while far more people than that pass through. Each patron makes a Poisson-distributed number of trips at random points during their meal, walks to the restrooms, takes whichever stall frees up first, and walks back. Anyone facing more than a five-minute wait gives up and returns to the table.</p>
+        <p>A collision is recorded whenever one person's pass through a doorway overlaps someone else's pass in the opposite direction.</p>
+      </div>
+      <div>
+        <h3>Two rooms, two different problems</h3>
+        <p>A locked single-occupancy restroom makes the door itself the bottleneck. You reach for the handle as you arrive, so a true collision needs their exit to start within a door-pass of you getting there. Arrive earlier than that and you find the door locked, you know someone is inside, and you stand aside when it opens — awkward, but not a collision. Past about fifty seats almost every encounter is this polite version.</p>
+        <p>A multi-stall restroom can't be locked. Everyone walks straight in and queues inside, the door stops holding anyone up, and its traffic becomes close to pure chance — which is the regime where your original hunch is exactly right.</p>
+      </div>
+      <div>
+        <h3>Reading the estimate line</h3>
+        <p>If door passes arrived independently and nobody ever queued, the chance of at least one collision would follow a Poisson arrival model: one minus e to the minus the pass rate times the door window, over every pass a patron makes.</p>
+        <p>The simulation tracks that line closely while the restrooms are quiet and falls below it as they fill, because a queue is the opposite of randomness. People leave one at a time in an orderly stream, and orderly streams don't bump into each other.</p>
+      </div>
+      <div>
+        <h3>Things worth sliding</h3>
+        <ul>
+          <li><strong>Door pass time.</strong> The single most sensitive input. Doubling it roughly doubles the collision rate.</li>
+          <li><strong>Table turnover.</strong> Shorter meals push more bodies through the same seats, and matter as much as the seat count.</li>
+          <li><strong>Stalls.</strong> Going from one to two changes the mechanism entirely, not just the magnitude.</li>
+          <li><strong>Gendered restrooms.</strong> Two doors halve the traffic per door; forcing people to one of them gives half of that back.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   1. Random numbers
+   ============================================================ */
+function mulberry32(a){
+  return function(){
+    a|=0; a=a+0x6D2B79F5|0;
+    let t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return ((t^t>>>14)>>>0)/4294967296;
+  };
+}
+function gauss(rng,mean,sd){
+  let u=0,v=0;
+  while(u===0)u=rng();
+  while(v===0)v=rng();
+  return mean+sd*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function poisson(rng,lambda){
+  if(lambda<=0)return 0;
+  if(lambda>20)return Math.max(0,Math.round(gauss(rng,lambda,Math.sqrt(lambda))));
+  const L=Math.exp(-lambda);
+  let k=0,p=1;
+  do{k++;p*=rng();}while(p>L);
+  return k-1;
+}
+
+/* ============================================================
+   2. The simulation
+   ============================================================ */
+function simulate(P,rng,trace){
+  const serviceSec=P.serviceMin*60;
+  const mealSec=P.mealMin*60;
+  const nRooms=P.rooms;
+  const rooms=[];
+  for(let r=0;r<nRooms;r++){
+    const slots=[];
+    for(let k=0;k<P.stalls;k++)slots.push({vacate:-1e9,clear:-1e9});
+    rooms.push({slots,events:[]});
+  }
+
+  /* --- seat the restaurant: each seat cycles parties through the service --- */
+  const patrons=[];
+  for(let s=0;s<P.seats;s++){
+    let t=-rng()*mealSec;                    // first party is already part-way through
+    while(t<serviceSec){
+      const arrival=t, departure=t+mealSec;
+      if(departure>0){
+        patrons.push({
+          id:patrons.length, seat:s, arrival, departure,
+          room:Math.floor(rng()*nRooms),      // only used when restrooms are gendered
+          trips:[], hit:false,
+          look:Math.floor(rng()*1e6)           // stable seed for shirt/hair/build
+        });
+      }
+      t=departure+mealSec*0.06*rng();         // table reset between parties
+    }
+  }
+
+  /* --- everyone's intended trips, sorted by arrival at the door --- */
+  const reqs=[];
+  for(const p of patrons){
+    const n=Math.min(6,poisson(rng,P.trips));
+    for(let i=0;i<n;i++){
+      const walk=Math.max(3,gauss(rng,P.walkSec,P.walkSec*0.25));
+      const leave=p.arrival+(0.08+0.84*rng())*mealSec;
+      reqs.push({p,leave,walk,doorT:leave+walk});
+    }
+  }
+  reqs.sort((a,b)=>a.doorT-b.doorT);
+
+  /* --- serve them in order ---------------------------------------------
+     Two regimes, and they behave completely differently:
+
+     A locked single-occupancy room makes the door the bottleneck. You reach for
+     the handle the moment you arrive, unless you got there early enough to find
+     it locked - then you know someone is in there and you stand aside when it
+     opens. So a collision needs their exit to begin within one door-pass of your
+     arrival; anyone waiting longer than that gets a polite handoff instead.
+
+     A multi-stall room is not lockable. You walk straight in and queue inside,
+     so the door never holds anyone up and its traffic is close to pure chance. */
+  const single=P.stalls===1;
+  const PATIENCE=300;                 // seconds before giving up and going back
+  let totalTrips=0,queued=0,waitSum=0,handoffs=0,gaveUp=0;
+
+  for(const q of reqs){
+    if(q.doorT<0||q.doorT>serviceSec)continue;
+    totalTrips++;
+    const first=P.gendered?q.p.room:0;
+    const last=P.gendered?q.p.room:nRooms-1;
+
+    let toilet=Math.max(8,gauss(rng,P.toiletSec,P.toiletSec*0.3));
+    const number2=rng()<P.pLong;                 // the long version
+    if(number2)toilet*=3.5;
+    let after=0;
+    const washes=rng()<P.pWash;
+    if(washes)after+=Math.max(4,gauss(rng,P.washSec,P.washSec*0.3));
+    const lingers=rng()<P.pLinger;
+    if(lingers)after+=18+rng()*28;
+    /* split the occupancy into visible phases: toilet, a step to the sink, then washing */
+    const stepToSink=washes?Math.min(3,after*0.15):0;
+
+    let room,slot,inStart,inEnd,outStart,outEnd,waited=false,wait=0;
+
+    if(single){
+      let bestEntry=Infinity,bestRoom=first,bestAside=false;
+      for(let r=first;r<=last;r++){
+        const s=rooms[r].slots[0];
+        const inPlay=q.doorT>=s.vacate-P.doorSec;   // door is live as you walk up
+        const entry=inPlay?q.doorT:s.clear+0.4;
+        if(entry<bestEntry){bestEntry=entry;bestRoom=r;bestAside=!inPlay;}
+      }
+      wait=bestEntry-q.doorT;
+      if(wait>PATIENCE){
+        gaveUp++;
+        const giveUp=q.doorT+PATIENCE;
+        q.p.trips.push({room:bestRoom,stall:0,leave:q.leave,doorT:q.doorT,walk:q.walk,
+          inStart:giveUp,inEnd:giveUp,outStart:giveUp,outEnd:giveUp,
+          back:giveUp+q.walk,waited:true,abandoned:true,met:false});
+        continue;
+      }
+      room=bestRoom;slot=0;
+      waited=bestAside&&wait>0.5;
+      if(waited){queued++;waitSum+=wait;handoffs++;}
+      inStart=bestEntry;inEnd=inStart+P.doorSec;
+      outStart=inEnd+toilet+after;outEnd=outStart+P.doorSec;
+      rooms[room].slots[0].vacate=outStart;
+      rooms[room].slots[0].clear=outEnd;
+    }else{
+      let bestFree=Infinity,bestRoom=first,bestSlot=0;
+      for(let r=first;r<=last;r++){
+        for(let k=0;k<P.stalls;k++){
+          const v=rooms[r].slots[k].vacate;
+          if(v<bestFree){bestFree=v;bestRoom=r;bestSlot=k;}
+        }
+      }
+      room=bestRoom;slot=bestSlot;
+      inStart=q.doorT;inEnd=inStart+P.doorSec;
+      let stallStart=Math.max(inEnd,bestFree);
+      const innerWait=stallStart-inEnd;
+      if(innerWait>0.5){queued++;waitSum+=innerWait;}
+      if(innerWait>PATIENCE){            // walks back out without a stall
+        gaveUp++;
+        outStart=inEnd+PATIENCE;outEnd=outStart+P.doorSec;
+      }else{
+        outStart=stallStart+toilet+after;outEnd=outStart+P.doorSec;
+        rooms[room].slots[slot].vacate=stallStart+toilet;
+        rooms[room].slots[slot].clear=outEnd;
+      }
+    }
+
+    const trip={
+      room,stall:slot,leave:q.leave,doorT:q.doorT,walk:q.walk,
+      inStart,inEnd,outStart,outEnd,back:outEnd+q.walk,
+      waited,abandoned:false,met:false,
+      number2,washes,lingers,
+      toiletEnd:inEnd+Math.min(toilet,outStart-inEnd),
+      sinkStart:inEnd+Math.min(toilet+stepToSink,outStart-inEnd)
+    };
+    if(waited)q.p.metWaiting=true;
+    q.p.trips.push(trip);
+    rooms[room].events.push({s:inStart,e:inEnd,dir:1,p:q.p,trip,waited});
+    rooms[room].events.push({s:outStart,e:outEnd,dir:-1,p:q.p,trip,waited:false});
+  }
+
+  /* --- find overlapping passes on the same door --- */
+  const encounters=[];
+  let sameDir=0;
+  for(let r=0;r<nRooms;r++){
+    const ev=rooms[r].events;
+    ev.sort((a,b)=>a.s-b.s);
+    for(let i=0;i<ev.length;i++){
+      for(let j=i+1;j<ev.length&&ev[j].s<ev[i].e;j++){
+        if(ev[i].p===ev[j].p)continue;
+        if(ev[i].dir===ev[j].dir){sameDir++;continue;}
+        ev[i].p.hit=true;ev[j].p.hit=true;
+        ev[i].trip.met=true;ev[j].trip.met=true;
+        encounters.push({room:r,t:Math.max(ev[i].s,ev[j].s),a:ev[i].p.id,b:ev[j].p.id});
+      }
+    }
+  }
+  encounters.sort((a,b)=>a.t-b.t);
+
+  let hit=0,hitAny=0,hitWait=0;
+  for(const p of patrons){
+    if(p.hit)hit++;
+    if(p.metWaiting)hitWait++;
+    if(p.hit||p.metWaiting)hitAny++;
+  }
+
+  const out={
+    patrons:patrons.length,trips:totalTrips,
+    hit,hitAny,hitWait,encounters:encounters.length,sameDir,handoffs,queued,waitSum,gaveUp,serviceSec
+  };
+  if(trace){out.trace={patrons,encounters,rooms:nRooms};}
+  return out;
+}
+
+/* Aggregate over many services */
+function monteCarlo(P,runs,seed){
+  const rng=mulberry32(seed||1);
+  let patrons=0,trips=0,hit=0,hitAny=0,hitWait=0,enc=0,same=0,hand=0,queued=0,waitSum=0,gaveUp=0;
+  for(let i=0;i<runs;i++){
+    const r=simulate(P,rng,false);
+    patrons+=r.patrons;trips+=r.trips;hit+=r.hit;hitAny+=r.hitAny;hitWait+=r.hitWait;
+    enc+=r.encounters;same+=r.sameDir;hand+=r.handoffs;
+    queued+=r.queued;waitSum+=r.waitSum;gaveUp+=r.gaveUp;
+  }
+  const pHit=patrons?hit/patrons:0;
+  const pAny=patrons?hitAny/patrons:0;
+  const pWait=patrons?hitWait/patrons:0;
+  /* Poisson estimate: passes arrive independently and nobody ever queues */
+  const serviceSec=P.serviceMin*60;
+  const oppRate=(trips/runs)/P.rooms/serviceSec;         // opposite-direction passes per second per door
+  const passes=patrons?2*(trips/patrons):0;
+  const theory=1-Math.exp(-passes*oppRate*2*P.doorSec);
+  return {
+    pHit,pAny,pWait,theory,
+    per100:trips?100*enc/trips:0,
+    perService:enc/runs,
+    handoffs:hand/runs,
+    queuedShare:trips?queued/trips:0,
+    meanWait:queued?waitSum/queued:0,
+    gaveUp:gaveUp/runs,
+    sameDir:same/runs,
+    runs,patrons
+  };
+}
+
+/* ============================================================
+   3. Reading the form
+   ============================================================ */
+const $=id=>document.getElementById(id);
+const fields=["seats","service","meal","walk","rooms","stalls","perstall","toilet","plong","pwash","wash","plinger","door","trips","sims"];
+function stallsFor(seats,rooms){
+  if(!$("auto").checked)return +$("stalls").value;
+  return Math.max(1,Math.ceil(seats/(+$("perstall").value*rooms)));
+}
+function params(){
+  const seats=+$("seats").value, rooms=+$("rooms").value;
+  return {
+    seats,
+    serviceMin:+$("service").value,
+    mealMin:+$("meal").value,
+    walkSec:+$("walk").value,
+    rooms,
+    stalls:stallsFor(seats,rooms),
+    autoStalls:$("auto").checked,
+    perStall:+$("perstall").value,
+    gendered:$("gendered").checked,
+    toiletSec:+$("toilet").value,
+    pLong:+$("plong").value/100,
+    pWash:+$("pwash").value/100,
+    washSec:+$("wash").value,
+    pLinger:+$("plinger").value/100,
+    doorSec:+$("door").value,
+    trips:+$("trips").value,
+    sims:+$("sims").value
+  };
+}
+function syncLabels(){
+  const p=params();
+  $("seats-v").textContent=p.seats;
+  $("service-v").textContent=p.serviceMin+" min";
+  $("meal-v").textContent=p.mealMin+" min";
+  $("walk-v").textContent=p.walkSec+" s";
+  $("rooms-v").textContent=p.rooms;
+  $("stalls-v").textContent=p.stalls+(p.autoStalls?" (set for you)":"");
+  $("perstall-v").textContent=p.perStall+" seats";
+  $("stalls").disabled=p.autoStalls;
+  $("perstall").disabled=!p.autoStalls;
+  $("toilet-v").textContent=p.toiletSec+" s";
+  $("plong-v").textContent=Math.round(p.pLong*100)+"%";
+  $("pwash-v").textContent=Math.round(p.pWash*100)+"%";
+  $("wash-v").textContent=p.washSec+" s";
+  $("plinger-v").textContent=Math.round(p.pLinger*100)+"%";
+  $("door-v").textContent=p.doorSec.toFixed(1)+" s";
+  $("trips-v").textContent=p.trips.toFixed(1);
+  $("sims-v").textContent=p.sims;
+  const total=Math.round(p.seats*(p.serviceMin/p.mealMin));
+  $("turnover").textContent="≈ "+total+" patrons pass through tonight.";
+  $("gendered").disabled=p.rooms<2;
+}
+
+/* ============================================================
+   4. The floor plan
+   ============================================================ */
+const cv=$("stage"),cx=cv.getContext("2d");
+const W=1000,H=600;
+const C={
+  floor:"#1d4239",floorAlt:"#1a3b33",wall:"#0d201b",
+  table:"#2c574a",tableEdge:"#c68f2d",
+  seated:"#8fae9f",walker:"#ecd9a8",hit:"#d8404f",
+  door:"#c68f2d",plaster:"#ece5d8"
+};
+let plan=null,show=null,playing=false,simT=0,lastFrame=0,bursts=[],encIdx=0,metCount=0;
+
+function buildPlan(p){
+  const pad=22;
+  const dining={x:pad,y:pad,w:640,h:H-pad*2};
+  const aisleY=dining.y+dining.h/2;
+  const aisleX=dining.x+dining.w-26;
+  const hallX=dining.x+dining.w+34;
+  const doorX=hallX+74;
+  const rooms=[];
+  const n=p.rooms;
+  for(let r=0;r<n;r++){
+    const slice=(H-pad*2)/n;
+    const y=pad+slice*r;
+    rooms.push({
+      x:doorX,y:y+10,w:W-doorX-pad,h:slice-20,
+      doorY:y+slice/2,
+      cy:y+slice/2
+    });
+  }
+  /* seats: four to a table, two blocks split by the aisle */
+  const tables=Math.max(1,Math.ceil(p.seats/4));
+  const cols=Math.max(1,Math.round(Math.sqrt(tables*1.55)));
+  const rowsN=Math.ceil(tables/cols);
+  const cw=(dining.w-46)/cols, chh=(dining.h-30)/rowsN;
+  const tr=Math.max(5,Math.min(21,Math.min(cw,chh)*0.27));
+  const seats=[];
+  for(let i=0;i<p.seats;i++){
+    const t=Math.floor(i/4), k=i%4;
+    const col=t%cols, row=Math.floor(t/cols);
+    const tx=dining.x+18+cw*(col+0.5);
+    let ty=dining.y+14+chh*(row+0.5);
+    if(ty>aisleY-16&&ty<aisleY+16)ty+=22;              // keep the aisle clear
+    const off=tr+Math.max(4,tr*0.5);
+    const ang=[-Math.PI/2,0,Math.PI/2,Math.PI][k];
+    seats.push({x:tx+Math.cos(ang)*off,y:ty+Math.sin(ang)*off,tx,ty,tr});
+  }
+  return {dining,aisleY,aisleX,hallX,doorX,rooms,seats,tr,tables:seats};
+}
+
+/* path from a seat to the front of a door */
+function pathFor(seat,room,pl){
+  const front=pl.doorX-24;
+  return [
+    {x:seat.x,y:seat.y},
+    {x:seat.x,y:pl.aisleY},
+    {x:pl.aisleX,y:pl.aisleY},
+    {x:pl.hallX,y:pl.aisleY},
+    {x:pl.hallX,y:room.doorY},
+    {x:front,y:room.doorY}
+  ];
+}
+function walkAt(path,f){
+  let total=0;const segs=[];
+  for(let i=1;i<path.length;i++){
+    const d=Math.hypot(path[i].x-path[i-1].x,path[i].y-path[i-1].y);
+    segs.push(d);total+=d;
+  }
+  if(total===0)return path[0];
+  let want=Math.max(0,Math.min(1,f))*total;
+  for(let i=0;i<segs.length;i++){
+    if(want<=segs[i]||i===segs.length-1){
+      const r=segs[i]?want/segs[i]:0;
+      return {
+        x:path[i].x+(path[i+1].x-path[i].x)*r,
+        y:path[i].y+(path[i+1].y-path[i].y)*r,
+        dx:path[i+1].x-path[i].x,dy:path[i+1].y-path[i].y
+      };
+    }
+    want-=segs[i];
+  }
+  return path[path.length-1];
+}
+
+function fitCanvas(){
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  const w=cv.clientWidth||W;
+  cv.width=Math.round(w*dpr);
+  cv.height=Math.round(w*(H/W)*dpr);
+  cx.setTransform(dpr*w/W,0,0,dpr*w/W,0,0);
+}
+
+function drawRoom(pl){
+  cx.fillStyle=C.wall;cx.fillRect(0,0,W,H);
+  /* dining floor with a faint tile grid */
+  cx.fillStyle=C.floor;
+  cx.fillRect(pl.dining.x,pl.dining.y,pl.dining.w,pl.dining.h);
+  cx.strokeStyle="rgba(0,0,0,.14)";cx.lineWidth=1;
+  for(let x=pl.dining.x;x<pl.dining.x+pl.dining.w;x+=34){
+    cx.beginPath();cx.moveTo(x,pl.dining.y);cx.lineTo(x,pl.dining.y+pl.dining.h);cx.stroke();
+  }
+  for(let y=pl.dining.y;y<pl.dining.y+pl.dining.h;y+=34){
+    cx.beginPath();cx.moveTo(pl.dining.x,y);cx.lineTo(pl.dining.x+pl.dining.w,y);cx.stroke();
+  }
+  /* aisles */
+  cx.fillStyle="rgba(236,229,216,.055)";
+  cx.fillRect(pl.dining.x,pl.aisleY-15,pl.dining.w,30);
+  cx.fillRect(pl.aisleX-15,pl.dining.y,30,pl.dining.h);
+  cx.fillRect(pl.dining.x+pl.dining.w,pl.aisleY-15,(pl.doorX-24)-(pl.dining.x+pl.dining.w),30);
+  cx.fillRect(pl.hallX-15,24,30,H-48);
+  /* tables */
+  const seen=new Set();
+  for(const s of pl.seats){
+    const key=s.tx+"|"+s.ty;
+    if(!seen.has(key)){
+      seen.add(key);
+      cx.beginPath();cx.arc(s.tx,s.ty,s.tr,0,7);
+      cx.fillStyle=C.table;cx.fill();
+      cx.strokeStyle="rgba(198,143,45,.5)";cx.lineWidth=1;cx.stroke();
+    }
+  }
+  /* restrooms */
+  for(const r of pl.rooms){
+    cx.fillStyle="#123029";
+    cx.fillRect(r.x,r.y,r.w,r.h);
+    cx.strokeStyle="rgba(236,229,216,.22)";cx.lineWidth=1;
+    cx.strokeRect(r.x+.5,r.y+.5,r.w-1,r.h-1);
+    /* door in the left wall, with a swing arc */
+    cx.strokeStyle=C.door;cx.lineWidth=3;
+    cx.beginPath();cx.moveTo(r.x,r.doorY-16);cx.lineTo(r.x,r.doorY+16);cx.stroke();
+    cx.strokeStyle="rgba(198,143,45,.35)";cx.lineWidth=1;
+    cx.beginPath();cx.arc(r.x,r.doorY-16,32,0,Math.PI/2);cx.stroke();
+  }
+}
+
+/* a small palette of shirt colours; hair is a darker neutral set */
+const SHIRTS=["#d98b4a","#5a9e8f","#c85d6b","#e0b45f","#7b93c4","#b07cc4","#6ba368","#d4746a","#4f9cc9","#c99a3f"];
+const HAIRS=["#2b1f16","#3a2a1c","#1c1c22","#5a3a24","#6e5636","#8a8a92"];
+
+/* draw one figure at (x,y). heading is the direction of travel in radians
+   (null = standing). phase drives the walk cycle. mood tints a met patron. */
+function person(o){
+  const {x,y,scale:s,seed,heading,phase,mood,ghost,sitting}=o;
+  const shirt=ghost?"rgba(236,229,216,.34)":SHIRTS[seed%SHIRTS.length];
+  const hair=HAIRS[(seed>>3)%HAIRS.length];
+  const skinPool=["#e8c4a0","#d9a879","#c68e5f","#a9713f","#875028"];
+  const skin=ghost?"rgba(236,229,216,.34)":skinPool[(seed>>6)%skinPool.length];
+  const moving=heading!=null;
+  const swing=moving?Math.sin(phase)*0.9:0;   // limb swing
+  const bob=moving?Math.abs(Math.sin(phase))*0.9*s:0;
+
+  cx.save();
+  cx.translate(x,y-bob);
+
+  if(mood>0){                                  // startled halo on a collision
+    cx.beginPath();cx.arc(0,-1*s,12*s+mood*6,0,7);
+    cx.strokeStyle="rgba(216,64,79,"+(0.9*mood)+")";cx.lineWidth=2;cx.stroke();
+  }
+
+  /* soft floor shadow */
+  cx.beginPath();cx.ellipse(0,6.4*s,4.6*s,1.5*s,0,0,7);
+  cx.fillStyle="rgba(0,0,0,.22)";cx.fill();
+
+  /* legs (two little swinging pills) */
+  cx.strokeStyle=ghost?shirt:"#33302b";cx.lineWidth=1.9*s;cx.lineCap="round";
+  cx.beginPath();
+  cx.moveTo(-1.3*s,2.6*s);cx.lineTo(-1.3*s+swing*2*s,6.2*s);
+  cx.moveTo(1.3*s,2.6*s);cx.lineTo(1.3*s-swing*2*s,6.2*s);
+  cx.stroke();
+
+  /* torso — a rounded shirt, gently tapered */
+  cx.beginPath();
+  cx.moveTo(-2.7*s,3.4*s);
+  cx.quadraticCurveTo(-3.4*s,-1.9*s,0,-2.4*s);
+  cx.quadraticCurveTo(3.4*s,-1.9*s,2.7*s,3.4*s);
+  cx.quadraticCurveTo(0,4.3*s,-2.7*s,3.4*s);
+  cx.closePath();
+  cx.fillStyle=mood>0?"#d8404f":shirt;cx.fill();
+
+  /* arms swinging opposite the legs */
+  cx.strokeStyle=mood>0?"#d8404f":shirt;cx.lineWidth=1.6*s;
+  cx.beginPath();
+  cx.moveTo(-2.3*s,-0.6*s);cx.lineTo(-2.9*s-swing*1.6*s,2.9*s);
+  cx.moveTo(2.3*s,-0.6*s);cx.lineTo(2.9*s+swing*1.6*s,2.9*s);
+  cx.stroke();
+
+  /* head, lifted clear of the shoulders */
+  cx.beginPath();cx.arc(0,-5.6*s,2.9*s,0,7);
+  cx.fillStyle=skin;cx.fill();
+  /* hair cap, offset toward the back of travel */
+  const back=moving?-Math.cos(heading):0;
+  cx.beginPath();
+  cx.arc(0,-5.6*s,2.9*s,Math.PI*(0.04+back*0.12),Math.PI*(0.96+back*0.12),false);
+  cx.fillStyle=hair;cx.fill();
+
+  cx.restore();
+}
+
+/* float an emoji above a head, rising and fading */
+function floatEmoji(x,y,glyph,s,age){
+  cx.save();
+  cx.globalAlpha=Math.max(0,1-age*0.6);
+  cx.font=(13*s)+"px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+  cx.textAlign="center";cx.textBaseline="middle";
+  cx.fillText(glyph,x,y-11*s-age*7);
+  cx.restore();
+}
+
+function drawFrame(t){
+  const pl=plan;
+  if(!pl||!show)return;
+  drawRoom(pl);
+  const tr=show.trace;
+  const waiting=[];
+  for(let i=0;i<tr.rooms;i++)waiting.push([]);
+  const scale=Math.max(.7,Math.min(1.5,pl.tr/12));
+
+  const draws=[],emojis=[];
+  const now=performance.now()/1000;
+
+  for(const p of tr.patrons){
+    if(t<p.arrival||t>p.departure)continue;
+    const seat=pl.seats[p.seat];
+    if(!seat)continue;
+    let trip=null;
+    for(const tp of p.trips){
+      if(t>=tp.leave&&t<=tp.back){trip=tp;break;}
+    }
+    /* a met patron flushes red for a beat, then cools off */
+    let mood=0;
+    for(const tp of p.trips){
+      if(tp.met&&t>=tp.inStart-1&&t<=tp.outEnd+16){
+        mood=Math.max(mood,1-Math.max(0,(t-tp.outEnd))/16);
+      }
+    }
+    mood=Math.max(0,Math.min(1,mood));
+
+    if(!trip){
+      draws.push({x:seat.x,y:seat.y,scale:scale*.82,seed:p.look,heading:null,phase:0,mood,sitting:true});
+      continue;
+    }
+    const room=pl.rooms[trip.room];
+    const path=pathFor(seat,room,pl);
+    const front=path[path.length-1];
+    const walkPhase=now*7+p.look;              // personal gait offset
+
+    if(t<trip.doorT){                          // walking to the door
+      const f=(t-trip.leave)/Math.max(.001,trip.doorT-trip.leave);
+      const pt=walkAt(path,f);
+      draws.push({x:pt.x,y:pt.y,scale,seed:p.look,heading:Math.atan2(pt.dy||0,pt.dx||1),phase:walkPhase,mood});
+    }else if(t<trip.inStart){                  // waiting outside
+      waiting[trip.room].push({p,mood,t0:trip.doorT});
+    }else if(t<trip.inEnd){                     // stepping through the doorway, inbound
+      const f=(t-trip.inStart)/Math.max(.001,trip.inEnd-trip.inStart);
+      draws.push({x:front.x+(room.x-front.x)*f,y:room.doorY,scale,seed:p.look,heading:Math.PI,phase:walkPhase,mood});
+    }else if(t<trip.outStart){                  // inside, doing their business
+      const gx=room.x+24+(trip.stall%4)*18, gy=room.y+18+Math.floor(trip.stall/4)*20;
+      draws.push({x:gx,y:gy,scale:scale*.78,seed:p.look,heading:null,phase:0,mood,ghost:true});
+      /* what's floating above them right now */
+      if(!trip.abandoned){
+        let glyph;
+        if(t<trip.toiletEnd)            glyph=trip.number2?"💩":"💦";   // on the toilet
+        else if(trip.washes&&t<trip.sinkStart) glyph="💦";              // walking to the sink
+        else if(trip.washes)            glyph="🚰";                     // at the sink
+        else if(trip.lingers)           glyph="🪞";                     // mirror / phone
+        if(glyph)emojis.push({x:gx,y:gy,glyph,s:scale*.9,age:0});
+      }else{
+        emojis.push({x:gx,y:gy,glyph:"💨",s:scale*.9,age:0});           // gave up, walking out
+      }
+    }else if(t<trip.outEnd){                     // stepping out, outbound
+      const f=(t-trip.outStart)/Math.max(.001,trip.outEnd-trip.outStart);
+      draws.push({x:room.x+(front.x-room.x)*f,y:room.doorY,scale,seed:p.look,heading:0,phase:walkPhase,mood});
+    }else{                                        // walking back to the table
+      const f=1-(t-trip.outEnd)/Math.max(.001,trip.back-trip.outEnd);
+      const pt=walkAt(path,f);
+      draws.push({x:pt.x,y:pt.y,scale,seed:p.look,heading:Math.atan2(-(pt.dy||0),-(pt.dx||1)),phase:walkPhase,mood});
+    }
+  }
+  /* queues line up back down the hall, facing the door */
+  for(let r=0;r<tr.rooms;r++){
+    const q=waiting[r].sort((a,b)=>a.t0-b.t0);
+    const room=pl.rooms[r];
+    q.forEach((w,i)=>{
+      draws.push({x:pl.doorX-44-i*16,y:room.doorY+(i%2?10:-10),scale,seed:w.p.look,heading:0,phase:0,mood:w.mood});
+      /* only the front two waiters show it, and it blinks so it isn't a wall of clocks */
+      if(i>0&&i<3&&Math.sin(now*3+i)>0)
+        emojis.push({x:pl.doorX-44-i*16,y:room.doorY+(i%2?10:-10),glyph:"⏳",s:scale*.78,age:0});
+    });
+  }
+  /* sitting figures first so walkers pass in front */
+  draws.sort((a,b)=>(a.sitting?0:1)-(b.sitting?0:1)||a.y-b.y);
+  for(const d of draws)person(d);
+  for(const e of emojis)floatEmoji(e.x,e.y,e.glyph,e.s,e.age);
+
+  /* collision bursts */
+  const nowMs=performance.now();
+  bursts=bursts.filter(b=>nowMs-b.at<1100);
+  for(const b of bursts){
+    const age=(nowMs-b.at)/1100;
+    const room=pl.rooms[b.room];
+    cx.beginPath();cx.arc(room.x-12,room.doorY,10+age*36,0,7);
+    cx.strokeStyle="rgba(216,64,79,"+(1-age)+")";cx.lineWidth=3-age*2;cx.stroke();
+    floatEmoji(room.x-12,room.doorY-6,"😳",scale*1.15,age*1.2);
+  }
+}
+
+/* clock label from seconds into the service */
+function clockLabel(sec){
+  const start=17.5*3600;
+  const d=new Date(0);d.setSeconds(start+sec);
+  let h=d.getUTCHours(),m=d.getUTCMinutes();
+  const ap=h>=12?"PM":"AM";h=h%12||12;
+  return h+":"+String(m).padStart(2,"0")+" "+ap;
+}
+
+function rebuildShow(){
+  const p=params();
+  plan=buildPlan(p);
+  show=simulate(p,mulberry32((Date.now()^0x9e3779b9)>>>0),true);
+  simT=0;encIdx=0;metCount=0;bursts=[];
+  $("bumps").textContent="0 door meetings";
+  $("clock").textContent=clockLabel(0);
+  $("scrub").style.right="100%";
+  fitCanvas();drawFrame(0);
+}
+
+function tick(ts){
+  if(!playing)return;
+  const dt=lastFrame?Math.min(.25,(ts-lastFrame)/1000):0;
+  lastFrame=ts;
+  simT+=dt*(+$("speed").value);
+  const end=show.serviceSec;
+  if(simT>=end){simT=end;playing=false;$("play").textContent="Watch it again";}
+  const enc=show.trace.encounters;
+  while(encIdx<enc.length&&enc[encIdx].t<=simT){
+    bursts.push({room:enc[encIdx].room,at:performance.now()});
+    SFX.collide();
+    metCount++;encIdx++;
+  }
+  $("bumps").textContent=metCount+" door meeting"+(metCount===1?"":"s");
+  $("clock").textContent=clockLabel(simT);
+  $("scrub").style.right=(100-100*simT/end)+"%";
+  drawFrame(simT);
+  if(playing)requestAnimationFrame(tick);
+}
+
+$("play").addEventListener("click",()=>{
+  SFX.resume();
+  if(!show||simT>=show.serviceSec)rebuildShow();
+  playing=!playing;
+  $("play").textContent=playing?"Pause":"Resume";
+  if(playing){lastFrame=0;requestAnimationFrame(tick);}
+});
+$("restart").addEventListener("click",()=>{
+  playing=false;$("play").textContent="Watch a service";
+  rebuildShow();
+});
+$("mute").addEventListener("click",()=>{
+  SFX.resume();
+  const m=!SFX.isMuted();
+  SFX.setMuted(m);
+  $("mute").textContent=m?"Sound: off":"Sound: on";
+  $("mute").setAttribute("aria-pressed",String(m));
+});
+
+/* ============================================================
+   4b. Sound — synthesised so the page stays a single file.
+       A collision fires one of these, but only sometimes.
+   ============================================================ */
+const SFX=(()=>{
+  let ctx=null,master=null,noiseBuf=null,muted=false,lastPlay=0;
+  function wake(){
+    if(ctx)return;
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return;
+    ctx=new AC();
+    master=ctx.createGain();master.gain.value=0.32;master.connect(ctx.destination);
+    const n=ctx.sampleRate*1.2;noiseBuf=ctx.createBuffer(1,n,ctx.sampleRate);
+    const d=noiseBuf.getChannelData(0);
+    for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+  }
+  const now=()=>ctx.currentTime;
+  function env(g,t0,a,peak,d,sus,rel,dur){
+    g.gain.cancelScheduledValues(t0);
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime(peak,t0+a);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0001,sus),t0+a+d);
+    g.gain.setValueAtTime(Math.max(0.0001,sus),t0+dur-rel);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  }
+  function tone(type,freq,t0,dur,peak,dest){
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=type;o.frequency.setValueAtTime(freq,t0);
+    env(g,t0,0.008,peak,0.05,peak*0.5,0.06,dur);
+    o.connect(g);g.connect(dest||master);
+    o.start(t0);o.stop(t0+dur+0.02);
+    return {o,g};
+  }
+  function noise(t0,dur,peak,filter){
+    const src=ctx.createBufferSource();src.buffer=noiseBuf;
+    const g=ctx.createGain();env(g,t0,0.004,peak,0.03,peak*0.4,0.05,dur);
+    let node=src;
+    if(filter){src.connect(filter);filter.connect(g);}else{src.connect(g);}
+    g.connect(master);
+    src.start(t0);src.stop(t0+dur+0.02);
+    return {src,g,filter};
+  }
+
+  /* ---- the expected ones ---- */
+  function bonk(){                                  // cartoon head-bump / woodblock
+    const t=now();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type="triangle";
+    o.frequency.setValueAtTime(420,t);
+    o.frequency.exponentialRampToValueAtTime(90,t+0.14);
+    env(g,t,0.004,0.9,0.04,0.15,0.08,0.2);
+    o.connect(g);g.connect(master);o.start(t);o.stop(t+0.22);
+  }
+  function squeak(){                                // door hinge / mouse squeak
+    const t=now();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type="sawtooth";
+    o.frequency.setValueAtTime(700,t);
+    o.frequency.linearRampToValueAtTime(1500,t+0.10);
+    o.frequency.linearRampToValueAtTime(1150,t+0.18);
+    const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=1200;bp.Q.value=6;
+    env(g,t,0.006,0.5,0.03,0.2,0.06,0.24);
+    o.connect(bp);bp.connect(g);g.connect(master);o.start(t);o.stop(t+0.26);
+  }
+
+  /* ---- the unexpected ones ---- */
+  function boing(){                                 // spring
+    const t=now();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type="sine";
+    const N=60,arr=new Float32Array(N);
+    for(let i=0;i<N;i++){
+      const x=i/(N-1);
+      const decay=Math.exp(-3*x);
+      arr[i]=140+ (1-x)*120 + Math.sin(x*38)*260*decay;   // wobble that settles low
+    }
+    o.frequency.setValueCurveAtTime(arr,t,0.5);
+    env(g,t,0.006,0.8,0.05,0.2,0.12,0.55);
+    o.connect(g);g.connect(master);o.start(t);o.stop(t+0.58);
+  }
+  function sadTrombone(){                            // womp-womp-womp-wommmp
+    const t=now();
+    const notes=[[233,0,0.22],[207,0.22,0.22],[185,0.44,0.24],[147,0.68,0.62]];
+    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=1100;lp.connect(master);
+    for(const [f,off,dur] of notes){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type="sawtooth";
+      o.frequency.setValueAtTime(f*1.03,t+off);
+      o.frequency.linearRampToValueAtTime(f*0.94,t+off+dur);   // the mournful droop
+      env(g,t+off,0.02,0.5,0.05,0.34,0.08,dur);
+      o.connect(g);g.connect(lp);o.start(t+off);o.stop(t+off+dur+0.02);
+    }
+  }
+  function quack(){                                  // duck
+    const t=now();
+    const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=900;bp.Q.value=4;bp.connect(master);
+    for(const off of [0,0.14]){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type="sawtooth";
+      o.frequency.setValueAtTime(480,t+off);
+      o.frequency.linearRampToValueAtTime(300,t+off+0.11);
+      env(g,t+off,0.006,0.6,0.02,0.3,0.03,0.12);
+      o.connect(g);g.connect(bp);o.start(t+off);o.stop(t+off+0.14);
+    }
+  }
+  function scratch(){                                // record scratch
+    const t=now();
+    const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.Q.value=8;
+    const N=40,arr=new Float32Array(N);
+    for(let i=0;i<N;i++)arr[i]=600+Math.sin(i*1.6)*1400*(1-i/N)+i*40;   // zig-zag sweep
+    bp.frequency.setValueCurveAtTime(arr,t,0.34);
+    noise(t,0.34,0.7,bp);
+  }
+  function partyHorn(){                              // the one nobody wants at a collision
+    const t=now();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type="sawtooth";
+    o.frequency.setValueAtTime(300,t);
+    o.frequency.linearRampToValueAtTime(520,t+0.06);
+    o.frequency.setValueAtTime(520,t+0.28);
+    o.frequency.linearRampToValueAtTime(240,t+0.42);        // deflating
+    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2200;
+    env(g,t,0.01,0.5,0.05,0.3,0.1,0.44);
+    o.connect(lp);lp.connect(g);g.connect(master);o.start(t);o.stop(t+0.46);
+  }
+
+  const kit=[
+    {fn:bonk,w:3},{fn:squeak,w:2},          // expected, so a little more common
+    {fn:boing,w:3},{fn:sadTrombone,w:2},
+    {fn:quack,w:2},{fn:scratch,w:2},{fn:partyHorn,w:1}
+  ];
+  const total=kit.reduce((s,k)=>s+k.w,0);
+
+  return {
+    resume(){wake();if(ctx&&ctx.state==="suspended")ctx.resume();},
+    setMuted(m){muted=m;if(master)master.gain.value=m?0:0.32;},
+    isMuted(){return muted;},
+    /* fires only sometimes, and never twice in quick succession */
+    collide(){
+      if(muted||!ctx)return;
+      const t=performance.now();
+      if(t-lastPlay<380)return;            // don't stack when collisions cluster
+      if(Math.random()>0.80)return;        // roughly four in five collisions make a noise
+      lastPlay=t;
+      let r=Math.random()*total;
+      for(const k of kit){if((r-=k.w)<=0){try{k.fn();}catch(e){}return;}}
+    }
+  };
+})();
+const cc=$("curve"),ccx=cc.getContext("2d");
+let curve=null;
+const SIZES=[2,4,6,8,12,16,22,30,40,55,72,95,125,165,215,250];
+
+function fitCurve(){
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  const w=cc.clientWidth||820;
+  cc.width=Math.round(w*dpr);
+  cc.height=Math.round(w*(420/820)*dpr);
+  ccx.setTransform(dpr*w/820,0,0,dpr*w/820,0,0);
+}
+function drawCurve(){
+  const w=820,h=420,m={l:52,r:14,t:14,b:52};
+  ccx.clearRect(0,0,w,h);
+  const x0=m.l,x1=w-m.r,y0=m.t,y1=h-m.b;
+  const lx=v=>x0+(Math.log(v)-Math.log(SIZES[0]))/(Math.log(SIZES[SIZES.length-1])-Math.log(SIZES[0]))*(x1-x0);
+  const ly=v=>y1-v*(y1-y0);
+
+  ccx.strokeStyle="rgba(236,229,216,.14)";ccx.lineWidth=1;
+  ccx.fillStyle="rgba(236,229,216,.55)";
+  ccx.font="12px Archivo, sans-serif";ccx.textAlign="right";
+  for(let v=0;v<=1.0001;v+=.25){
+    ccx.beginPath();ccx.moveTo(x0,ly(v));ccx.lineTo(x1,ly(v));ccx.stroke();
+    ccx.fillText(Math.round(v*100)+"%",x0-9,ly(v)+4);
+  }
+  ccx.textAlign="center";
+  for(const v of [2,8,30,95,250]){
+    ccx.fillText(v,lx(v),y1+17);
+  }
+  ccx.fillStyle="rgba(236,229,216,.42)";
+  ccx.fillText("people seated at once",(x0+x1)/2,y1+38);
+  if(!curve){
+    ccx.fillStyle="rgba(236,229,216,.38)";
+    ccx.font="13px Archivo, sans-serif";
+    ccx.fillText("Run the simulation to draw this",(x0+x1)/2,(y0+y1)/2);
+    return;
+  }
+  /* threshold marker */
+  const mk=mark();
+  if(mk){
+    ccx.setLineDash([3,4]);ccx.strokeStyle="rgba(236,229,216,.4)";
+    ccx.beginPath();ccx.moveTo(lx(mk.n),ly(mk.level));ccx.lineTo(lx(mk.n),y1);ccx.stroke();
+    ccx.setLineDash([]);
+  }
+  /* theory */
+  ccx.setLineDash([5,5]);ccx.strokeStyle="rgba(236,229,216,.55)";ccx.lineWidth=2;
+  ccx.beginPath();
+  curve.forEach((pt,i)=>{i?ccx.lineTo(lx(pt.n),ly(pt.theory)):ccx.moveTo(lx(pt.n),ly(pt.theory));});
+  ccx.stroke();ccx.setLineDash([]);
+  /* any encounter, waiting included */
+  drawSeries(pt=>pt.any,"rgba(198,143,45,.42)",1.6,lx,ly);
+  /* the strict collision */
+  drawSeries(pt=>pt.p,"#c68f2d",2.6,lx,ly);
+  /* mark where the restroom gains a stall: the two regimes don't join up */
+  for(let i=1;i<curve.length;i++){
+    if(curve[i].stalls!==curve[i-1].stalls){
+      const x=(lx(curve[i].n)+lx(curve[i-1].n))/2;
+      ccx.setLineDash([2,4]);ccx.strokeStyle="rgba(236,229,216,.3)";ccx.lineWidth=1;
+      ccx.beginPath();ccx.moveTo(x,y0);ccx.lineTo(x,y1);ccx.stroke();ccx.setLineDash([]);
+    }
+  }
+  /* current room */
+  const cur=params().seats;
+  const p=interp(cur);
+  if(p!=null){
+    ccx.beginPath();ccx.arc(lx(Math.max(SIZES[0],Math.min(250,cur))),ly(p),5.5,0,7);
+    ccx.fillStyle="#96202e";ccx.fill();
+    ccx.strokeStyle="#ece5d8";ccx.lineWidth=1.5;ccx.stroke();
+  }
+  if(mk){
+    ccx.fillStyle="rgba(236,229,216,.72)";
+    ccx.font="12px Archivo, sans-serif";ccx.textAlign="left";
+    ccx.fillText(mk.name+" at ≈"+mk.n+" seated",Math.min(lx(mk.n)+8,x1-135),ly(mk.level)-8);
+  }
+}
+function drawSeries(get,colour,width,lx,ly){
+  ccx.strokeStyle=colour;ccx.lineWidth=width;ccx.lineJoin="round";
+  let open=false;
+  for(let i=0;i<curve.length;i++){
+    const brk=i>0&&curve[i].stalls!==curve[i-1].stalls;
+    if(brk&&open){ccx.stroke();open=false;}
+    if(!open){ccx.beginPath();ccx.moveTo(lx(curve[i].n),ly(get(curve[i])));open=true;}
+    else ccx.lineTo(lx(curve[i].n),ly(get(curve[i])));
+  }
+  if(open)ccx.stroke();
+}
+function interp(n){
+  if(!curve)return null;
+  if(n<=curve[0].n)return curve[0].p;
+  for(let i=1;i<curve.length;i++){
+    if(n<=curve[i].n){
+      const a=curve[i-1],b=curve[i];
+      const f=(Math.log(n)-Math.log(a.n))/(Math.log(b.n)-Math.log(a.n));
+      return a.p+(b.p-a.p)*f;
+    }
+  }
+  return curve[curve.length-1].p;
+}
+function crossing(level){
+  if(!curve)return null;
+  for(let i=1;i<curve.length;i++){
+    if(curve[i-1].p<level&&curve[i].p>=level){
+      const a=curve[i-1],b=curve[i];
+      const f=(level-a.p)/(b.p-a.p);
+      return Math.round(Math.exp(Math.log(a.n)+(Math.log(b.n)-Math.log(a.n))*f));
+    }
+  }
+  return null;
+}
+const LEVELS=[{v:.5,name:"a coin flip"},{v:.25,name:"one in four"},{v:.1,name:"one in ten"}];
+function mark(){
+  for(const L of LEVELS){
+    const n=crossing(L.v);
+    if(n)return {n,level:L.v,name:L.name};
+  }
+  return null;
+}
+
+function pct(v){
+  if(v<=0)return "0%";
+  if(v<0.005)return "<1%";
+  return (v<0.1?(v*100).toFixed(1):Math.round(v*100))+"%";
+}
+function setResults(r){
+  $("headline").textContent=pct(r.pHit);
+  $("headline").classList.remove("idle");
+  $("headcap").textContent="of patrons have someone come out of the restroom as they are going in, at least once during their meal. Averaged over "+r.runs+" services and "+r.patrons.toLocaleString()+" diners.";
+  $("s-simul").textContent=pct(r.pAny)+" of patrons";
+  $("s-wait").textContent=pct(r.pWait)+" of patrons";
+  $("s-per100").textContent=r.per100.toFixed(1);
+  $("s-perservice").textContent=r.perService.toFixed(1);
+  $("s-samedir").textContent=r.sameDir.toFixed(1);
+  $("s-queue").textContent=Math.round(r.queuedShare*100)+"%";
+  $("s-gaveup").textContent=r.gaveUp<0.05?"nobody":r.gaveUp.toFixed(1)+" per service";
+}
+
+let running=false;
+$("run").addEventListener("click",()=>{
+  if(running)return;
+  running=true;
+  const btn=$("run");btn.disabled=true;btn.textContent="Running…";
+  const P=params();
+  setTimeout(()=>{
+    setResults(monteCarlo(P,P.sims,12345));
+    /* sweep the room size */
+    const per=Math.max(10,Math.min(40,Math.round(P.sims/8)));
+    curve=[];
+    let i=0;
+    (function step(){
+      const t0=performance.now();
+      while(i<SIZES.length&&performance.now()-t0<40){
+        const q=Object.assign({},P,{seats:SIZES[i]});
+        if(P.autoStalls)q.stalls=Math.max(1,Math.ceil(SIZES[i]/(P.perStall*P.rooms)));
+        const r=monteCarlo(q,per,777+i);
+        curve.push({n:SIZES[i],p:r.pHit,any:r.pAny,theory:r.theory,stalls:q.stalls});
+        i++;
+      }
+      drawCurve();
+      if(i<SIZES.length){requestAnimationFrame(step);}
+      else{
+        const m=mark();
+        $("chart-sub").textContent=m
+          ? "Everything held still except how many people are seated. The odds pass "+m.name+" at roughly "+m.n+" people in the room."
+          : "Everything held still except how many people are seated. With this restroom, the odds stay under one in ten at every size.";
+        btn.disabled=false;btn.textContent="Run it again";running=false;
+      }
+    })();
+  },20);
+});
+
+/* ============================================================
+   6. Wiring
+   ============================================================ */
+for(const id of fields){
+  $(id).addEventListener("input",()=>{
+    syncLabels();
+    if(["seats","service","meal","rooms","stalls","perstall","walk"].includes(id)){
+      playing=false;$("play").textContent="Watch a service";
+      rebuildShow();
+    }
+    if(curve)drawCurve();
+  });
+}
+for(const id of ["gendered","auto"]){
+  $(id).addEventListener("change",()=>{
+    syncLabels();playing=false;$("play").textContent="Watch a service";rebuildShow();
+    if(curve)drawCurve();
+  });
+}
+$("controls").addEventListener("submit",e=>e.preventDefault());
+window.addEventListener("resize",()=>{fitCanvas();fitCurve();drawFrame(simT);drawCurve();});
+
+syncLabels();
+fitCurve();
+rebuildShow();
+drawCurve();
+</script>
+</body>
+</html>
