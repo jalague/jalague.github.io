@@ -169,7 +169,7 @@ dl.stats dd{margin:0;text-align:right;font-weight:600}
       <legend>The room</legend>
       <div class="ctl">
         <label for="seats">People seated at once <span class="val" id="seats-v">90</span></label>
-        <input type="range" id="seats" min="2" max="250" step="1" value="90">
+        <input type="range" id="seats" min="2" max="300" step="1" value="90">
       </div>
       <div class="ctl">
         <label for="service">Service runs for <span class="val" id="service-v">180 min</span></label>
@@ -1135,7 +1135,7 @@ const SFX=(()=>{
 })();
 const cc=$("curve"),ccx=cc.getContext("2d");
 let curve=null;
-const SIZES=[2,4,6,8,12,16,22,30,40,55,72,95,125,165,215,250];
+const SIZES=[2,4,6,8,12,16,22,30,40,55,72,95,125,165,215,300];
 
 function fitCurve(){
   const dpr=Math.min(2,window.devicePixelRatio||1);
@@ -1159,7 +1159,7 @@ function drawCurve(){
     ccx.fillText(Math.round(v*100)+"%",x0-9,ly(v)+4);
   }
   ccx.textAlign="center";
-  for(const v of [2,8,30,95,250]){
+  for(const v of [2,8,30,95,300]){
     ccx.fillText(v,lx(v),y1+17);
   }
   ccx.fillStyle="rgba(236,229,216,.42)";
@@ -1198,7 +1198,7 @@ function drawCurve(){
   const cur=params().seats;
   const p=interp(cur);
   if(p!=null){
-    ccx.beginPath();ccx.arc(lx(Math.max(SIZES[0],Math.min(250,cur))),ly(p),5.5,0,7);
+    ccx.beginPath();ccx.arc(lx(Math.max(SIZES[0],Math.min(300,cur))),ly(p),5.5,0,7);
     ccx.fillStyle="#96202e";ccx.fill();
     ccx.strokeStyle="#ece5d8";ccx.lineWidth=1.5;ccx.stroke();
   }
