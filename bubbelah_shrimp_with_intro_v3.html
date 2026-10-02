@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bubbelah Shrimp</title>
+<style>
+:root{
+  --cream:#fff8f0; --ink:#3d3340; --pink:#ef8f9f; --deep:#b74d61; --sea:#9fd9d3;
+  --gold:#f4c86b; --ok:#dff4e6; --bad:#ffe0df; --water:#9edcf0; --pot:#8b8e97;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,sans-serif; color:var(--ink);
+  background:
+    radial-gradient(circle at 15% 10%,#fff 0 7%,transparent 7.5%),
+    radial-gradient(circle at 85% 20%,#ffffffbb 0 5%,transparent 5.5%),
+    linear-gradient(160deg,#ffe8e7,#fff8ef 45%,#dff4ef);
+  min-height:100vh; overflow-x:hidden;
+}
+.shell{max-width:900px;margin:auto;padding:28px 18px 60px}
+.card{
+  background:#fffdf9dd; border:2px solid #fff; border-radius:28px; padding:28px;
+  box-shadow:0 18px 55px #a46b7130; backdrop-filter:blur(8px)
+}
+.top{display:flex;justify-content:space-between;gap:22px;align-items:center}
+.kicker{font-weight:900;color:var(--deep);text-transform:uppercase;letter-spacing:2px;font-size:12px}
+h1{margin:0;font-size:clamp(36px,8vw,72px);letter-spacing:-3px;line-height:1}
+.sub{font-size:18px;max-width:650px;margin:10px 0 0}
+.shrimp-wrap{position:relative;text-align:center;min-width:130px}
+.shrimp{
+  font-size:100px; filter:drop-shadow(0 8px 6px #b96a6a30);
+  transition:.3s; user-select:none; animation:shrimpFloat 2s ease-in-out infinite;
+}
+.shrimp-shadow{height:13px;width:82px;border-radius:50%;background:#8f6a7040;margin:-8px auto 0;animation:shadowPulse 2s ease-in-out infinite}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;justify-content:center}
+.mini-badge{font-size:12px;font-weight:900;padding:6px 9px;border-radius:999px;background:#f9e3e7;color:#8f4051}
+@keyframes shrimpFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+@keyframes shadowPulse{50%{transform:scaleX(.78);opacity:.55}}
+.shrimp.correct{animation:bounce .5s}
+.shrimp.wrong{animation:shake .4s}
+@keyframes bounce{50%{transform:translateY(-18px) rotate(-8deg)}}
+@keyframes shake{25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.pill{background:#fff;border:1px solid #eadbd6;border-radius:999px;padding:8px 13px;font-weight:800}
+.bar{height:10px;background:#eee4df;border-radius:99px;overflow:hidden;margin-top:8px}
+.bar>div{height:100%;background:var(--pink);transition:.3s}
+.question-shell{
+  position:relative; margin-top:18px; padding:20px;border-radius:22px;
+  background:linear-gradient(145deg,#fff,#fff8f3);border:1px solid #f1e3de
+}
+.question-shell:before{content:"🫧";position:absolute;right:14px;top:10px;opacity:.55;font-size:25px}
+.heat{display:flex;gap:8px;align-items:center;font-size:12px;font-weight:900;color:#a84b4b}
+.pan-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:#e6d8d2;margin-right:5px}
+.pan-dot.hot{background:#ed7a68;box-shadow:0 0 9px #ed7a68}
+.q{font-size:clamp(22px,4vw,34px);font-weight:900;line-height:1.12;margin:18px 0 20px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{font:inherit}
+.ans,.primary,.secondary{border:0;border-radius:16px;padding:15px 17px;cursor:pointer;font-weight:850;transition:.15s}
+.ans{background:#fff;border:2px solid #eadfdc;text-align:left}
+.ans:hover{transform:translateY(-2px);border-color:var(--pink)}
+.ans.good{background:var(--ok);border-color:#73bd8a}
+.ans.bad{background:var(--bad);border-color:#e77d7b}
+.feedback{min-height:54px;margin-top:16px;font-weight:750;line-height:1.4}
+.primary{background:var(--deep);color:white}
+.secondary{background:#eee4df;color:var(--ink)}
+.hidden{display:none}
+.coral-strip{font-size:28px;letter-spacing:9px;text-align:center;opacity:.45;margin:18px 0 0}
+.footer{opacity:.6;text-align:center;margin-top:20px;font-size:13px}
+
+.ocean-deco{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:-1}
+.bubble{position:absolute;bottom:-80px;border:2px solid #ffffffaa;border-radius:50%;background:#ffffff28;animation:floatUp linear infinite}
+.seaweed{position:absolute;bottom:-10px;font-size:80px;opacity:.24;filter:saturate(.7);animation:sway 3s ease-in-out infinite alternate;transform-origin:bottom}
+.sparkle{position:fixed;pointer-events:none;font-size:22px;animation:pop .8s forwards;z-index:30}
+@keyframes floatUp{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:.8}50%{transform:translateY(-55vh) translateX(22px)}100%{transform:translateY(-115vh) translateX(-18px);opacity:0}}
+@keyframes sway{from{transform:rotate(-4deg)}to{transform:rotate(5deg)}}
+@keyframes pop{0%{transform:scale(.2);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.6) rotate(80deg);opacity:0}}
+
+.overlay{position:fixed;inset:0;background:#382b32d9;display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.overlay.hidden{display:none}
+.modal{max-width:560px;background:#fff8ef;border-radius:28px;padding:28px;text-align:center;box-shadow:0 20px 60px #00000030}
+.cooked-title{font-size:44px;font-weight:1000;letter-spacing:-1px;color:#b74d61;margin:6px 0}
+.cooked-sub{margin-top:10px;line-height:1.4}
+
+/* Boiling animation */
+.boil-scene{position:relative;height:280px;margin:6px auto 8px;width:100%;max-width:400px}
+.burner{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;width:170px;height:18px;background:#4c3b43;border-radius:999px}
+.flame{
+  position:absolute;bottom:28px;width:26px;height:38px;left:50%;transform:translateX(-50%);
+  background:radial-gradient(circle at 50% 65%, #ffd45f 0 30%, #ff8a3d 31% 70%, #d9562a 71% 100%);
+  clip-path:polygon(50% 0, 72% 26%, 100% 62%, 78% 100%, 50% 82%, 22% 100%, 0 62%, 28% 26%);
+  filter:drop-shadow(0 0 9px #ff9e46); animation:flicker .4s infinite alternate;
+}
+.flame.f2{left:42%;height:28px;width:20px;animation-delay:.15s}
+.flame.f3{left:58%;height:30px;width:22px;animation-delay:.28s}
+@keyframes flicker{from{transform:translateX(-50%) scale(.95)}to{transform:translateX(-50%) scale(1.08)}}
+
+.pot{
+  position:absolute;left:50%;bottom:46px;transform:translateX(-50%);
+  width:250px;height:160px;background:linear-gradient(180deg,#a8adb7,#8d9099 40%,#72757e 100%);
+  border-radius:0 0 36px 36px; border:5px solid #666872; overflow:hidden;
+}
+.pot:before,.pot:after{
+  content:"";position:absolute;top:50px;width:42px;height:42px;border:6px solid #6f727b;border-radius:50%;
+}
+.pot:before{left:-26px}.pot:after{right:-26px}
+.pot-rim{
+  position:absolute;left:50%;bottom:190px;transform:translateX(-50%);
+  width:270px;height:28px;border-radius:999px;background:linear-gradient(180deg,#c4c8d0,#8b8f98);
+  border:5px solid #696c74;
+}
+.water{
+  position:absolute;left:10px;right:10px;bottom:10px;height:95px;border-radius:0 0 26px 26px;
+  background:linear-gradient(180deg,#bfefff,#85d7f0); overflow:hidden;
+}
+.water:before{
+  content:"";position:absolute;left:-10px;right:-10px;top:-8px;height:18px;
+  background:radial-gradient(circle at 15px 13px,#dff8ff 0 10px,transparent 11px) repeat-x;
+  background-size:36px 22px; opacity:.85; animation:wave 1.3s linear infinite;
+}
+@keyframes wave{from{transform:translateX(0)}to{transform:translateX(36px)}}
+
+.boil-bubble{
+  position:absolute;bottom:8px;border-radius:50%;background:#ecfcff80;border:2px solid #ffffffb8;
+  animation:boilUp linear infinite;
+}
+@keyframes boilUp{
+  0%{transform:translateY(0) scale(.5);opacity:0}
+  12%{opacity:1}
+  100%{transform:translateY(-95px) scale(1.15);opacity:0}
+}
+
+.overlay-shrimp{
+  position:absolute;left:50%;top:18px;transform:translateX(-50%);
+  font-size:82px; animation:dropIn 1.1s ease-in forwards, bobBoil .8s ease-in-out 1.1s infinite alternate;
+  filter:drop-shadow(0 5px 6px #00000022) hue-rotate(0deg) saturate(1);
+}
+.overlay-shrimp.boiled{
+  color:#ff7c68; text-shadow:0 0 12px #ffb199;
+}
+@keyframes dropIn{
+  0%{top:-28px;transform:translateX(-50%) rotate(-18deg) scale(1.05)}
+  60%{top:86px;transform:translateX(-50%) rotate(8deg) scale(1)}
+  80%{top:78px}
+  100%{top:86px;transform:translateX(-50%) rotate(6deg)}
+}
+@keyframes bobBoil{
+  from{transform:translateX(-50%) translateY(0) rotate(4deg)}
+  to{transform:translateX(-50%) translateY(-8px) rotate(-5deg)}
+}
+
+.steam{
+  position:absolute;bottom:214px;left:50%;width:16px;height:54px;border-radius:999px;
+  background:linear-gradient(180deg,#ffffffbb,#ffffff10);filter:blur(2px);opacity:0;
+  animation:steamUp 1.2s linear infinite;
+}
+.steam.s1{transform:translateX(-74px);animation-delay:.1s}
+.steam.s2{transform:translateX(-14px);animation-delay:.5s}
+.steam.s3{transform:translateX(44px);animation-delay:.9s}
+@keyframes steamUp{
+  0%{opacity:0;transform:translateY(0) scale(.7)}
+  30%{opacity:.75}
+  100%{opacity:0;transform:translateY(-50px) scale(1.25)}
+}
+
+
+.intro-overlay{
+  position:fixed; inset:0; z-index:25; display:flex; align-items:flex-start; justify-content:center;
+  overflow-y:auto; padding:16px; background:
+    radial-gradient(circle at 20% 20%,#ffffff55 0 7%,transparent 8%),
+    linear-gradient(160deg,#f8cfd6ee,#fff4e7f2 48%,#cdeee8ee);
+  backdrop-filter:blur(7px);
+}
+.intro-overlay.hidden{display:none}
+.intro-card{
+  width:min(700px,100%); background:#fffdf9f5; border:2px solid #fff; border-radius:30px;
+  box-shadow:0 24px 70px #74495538; padding:24px; text-align:center; position:relative; overflow:hidden;
+  margin:6px auto 24px;
+}
+.intro-card:before,.intro-card:after{
+  content:"🫧"; position:absolute; font-size:48px; opacity:.35;
+}
+.intro-card:before{left:24px;top:22px}
+.intro-card:after{right:26px;bottom:22px}
+.intro-shrimp{font-size:72px; animation:shrimpFloat 2s ease-in-out infinite; margin-bottom:2px}
+.intro-title{font-size:clamp(36px,6.3vw,60px);line-height:.95;letter-spacing:-2.5px;margin:0}
+.intro-tag{font-weight:950;color:var(--deep);letter-spacing:1.4px;text-transform:uppercase;font-size:12px;margin-top:10px}
+.intro-copy{font-size:17px;line-height:1.45;max-width:590px;margin:14px auto 18px}
+.intro-rules{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0 18px; text-align:left;
+}
+.intro-rule{
+  background:#fff; border:1px solid #eededb; border-radius:18px; padding:14px; min-height:118px;
+}
+.intro-rule .icon{font-size:28px;display:block;margin-bottom:6px}
+.intro-rule strong{display:block;font-size:15px;margin-bottom:5px}
+.intro-rule span{font-size:13px;line-height:1.4;opacity:.8}
+.intro-objective{
+  background:linear-gradient(145deg,#fff0f3,#fff9ec); border:1px solid #f0d7d9; border-radius:18px;
+  padding:13px 16px; font-weight:850; line-height:1.4; margin-bottom:16px;
+}
+.intro-start{
+  background:var(--deep);color:#fff;border:0;border-radius:18px;padding:14px 22px;
+  font-size:18px;font-weight:950;cursor:pointer;box-shadow:0 9px 22px #b74d6140;transition:.15s;
+}
+.intro-start:hover{transform:translateY(-2px) scale(1.01)}
+
+@media(max-height:900px){
+  .intro-overlay{padding:10px 14px}
+  .intro-card{padding:20px}
+  .intro-shrimp{font-size:60px}
+  .intro-tag{margin-top:6px}
+  .intro-copy{font-size:16px;margin:10px auto 14px}
+  .intro-rules{margin:14px 0 14px}
+  .intro-rule{min-height:104px;padding:12px}
+  .intro-objective{margin-bottom:12px}
+}
+@media(max-width:650px){
+  .intro-card{padding:24px 18px}
+  .intro-rules{grid-template-columns:1fr}
+  .intro-rule{min-height:auto}
+  .intro-shrimp{font-size:76px}
+}
+
+@media(max-width:620px){
+  .answers{grid-template-columns:1fr}
+  .card{padding:20px}
+  .shrimp{font-size:76px}
+  .boil-scene{height:250px}
+  .pot{width:220px;height:145px}
+  .pot-rim{width:238px;bottom:176px}
+}
+</style>
+</head>
+<body>
+
+<div id="intro" class="intro-overlay">
+  <div class="intro-card">
+    <div class="intro-shrimp">🦐</div>
+    <div class="intro-tag">Welcome to the shrimp geography gauntlet</div>
+    <h1 class="intro-title">Bubbelah Shrimp</h1>
+    <p class="intro-copy">
+      You are Bubbelah: a highly educated shrimp with an alarmingly strong grasp of world geography.
+      Your job is simple — survive a run of genuinely difficult geography questions and prove that
+      crustaceans can, in fact, understand exclaves, rivers, borders, capitals, and obscure regional geography.
+    </p>
+
+    <div class="intro-rules">
+      <div class="intro-rule">
+        <span class="icon">🌍</span>
+        <strong>Expect real geography</strong>
+        <span>Advanced questions about countries, capitals, borders, rivers, islands, exclaves, and weird geographic edge cases.</span>
+      </div>
+      <div class="intro-rule">
+        <span class="icon">🔥</span>
+        <strong>Three wrong = boiled</strong>
+        <span>Every mistake heats the water. Miss three questions and Bubbelah gets fully boiled.</span>
+      </div>
+      <div class="intro-rule">
+        <span class="icon">🏆</span>
+        <strong>Build your score</strong>
+        <span>Correct answers earn points. Streaks earn more. The objective is to survive as long as possible and rack up a ridiculous score.</span>
+      </div>
+    </div>
+
+    <div class="intro-objective">
+      Objective: stay raw, keep the streak alive, and make it through the geography gauntlet without getting cooked.
+    </div>
+
+    <button id="startGame" class="intro-start">Enter the Frying Pan 🔥🦐</button>
+  </div>
+</div>
+
+<div class="ocean-deco" aria-hidden="true">
+  <div class="bubble" style="left:7%;width:24px;height:24px;animation-duration:9s"></div>
+  <div class="bubble" style="left:20%;width:13px;height:13px;animation-duration:7s;animation-delay:2s"></div>
+  <div class="bubble" style="left:42%;width:32px;height:32px;animation-duration:11s;animation-delay:1s"></div>
+  <div class="bubble" style="left:69%;width:18px;height:18px;animation-duration:8s;animation-delay:3s"></div>
+  <div class="bubble" style="left:87%;width:38px;height:38px;animation-duration:12s"></div>
+  <div class="seaweed" style="left:2%">🌿</div>
+  <div class="seaweed" style="right:3%;animation-delay:.8s">🌿</div>
+</div>
+
+<div class="shell">
+  <div class="card">
+    <div class="top">
+      <div>
+        <div class="kicker">Advanced geography • shrimp-forward • no map this time</div>
+        <h1>Bubbelah Shrimp</h1>
+        <p class="sub">A hard geography game where <strong>you are the shrimp</strong>. Get the question right and Bubbelah thrives. Miss three and… well… <strong>you’re cooked.</strong></p>
+      </div>
+      <div class="shrimp-wrap">
+        <div id="shrimp" class="shrimp" aria-label="Bubbelah the shrimp">🦐</div>
+        <div class="shrimp-shadow"></div>
+        <div class="badge-row">
+          <span class="mini-badge">raw</span>
+          <span class="mini-badge">brilliant</span>
+          <span class="mini-badge">shrimp</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="pill">Score: <span id="score">0</span></div>
+      <div class="pill">Streak: <span id="streak">0</span></div>
+      <div class="pill">Bubbelah: <span id="lives">❤️❤️❤️</span></div>
+      <div class="pill">Question <span id="num">1</span>/<span id="total"></span></div>
+    </div>
+    <div class="bar"><div id="progress"></div></div>
+
+    <div class="question-shell">
+      <div class="heat">BOIL ALERT <span id="heatdots"><i class="pan-dot"></i><i class="pan-dot"></i><i class="pan-dot"></i></span></div>
+      <div id="question" class="q"></div>
+      <div id="answers" class="answers"></div>
+      <div id="feedback" class="feedback"></div>
+    </div>
+
+    <button id="next" class="primary hidden">Next question →</button>
+    <div class="coral-strip" aria-hidden="true">🪸 🫧 🐚 🫧 🪸</div>
+  </div>
+  <div class="footer">Single-file local game. Stronger boil consequences. Cleaner layout.</div>
+</div>
+
+<div id="cook" class="overlay hidden">
+  <div class="modal">
+    <div class="boil-scene" aria-hidden="true">
+      <div class="steam s1"></div>
+      <div class="steam s2"></div>
+      <div class="steam s3"></div>
+      <div class="pot-rim"></div>
+      <div class="pot">
+        <div class="water" id="water">
+          <div class="boil-bubble" style="left:22px;width:12px;height:12px;animation-duration:1.1s"></div>
+          <div class="boil-bubble" style="left:56px;width:16px;height:16px;animation-duration:1.4s;animation-delay:.2s"></div>
+          <div class="boil-bubble" style="left:90px;width:10px;height:10px;animation-duration:1s;animation-delay:.5s"></div>
+          <div class="boil-bubble" style="left:132px;width:15px;height:15px;animation-duration:1.25s;animation-delay:.1s"></div>
+          <div class="boil-bubble" style="left:168px;width:11px;height:11px;animation-duration:1.05s;animation-delay:.35s"></div>
+          <div class="boil-bubble" style="left:195px;width:17px;height:17px;animation-duration:1.35s;animation-delay:.6s"></div>
+        </div>
+      </div>
+      <div class="overlay-shrimp boiled">🦐</div>
+      <div class="flame f1 flame"></div>
+      <div class="flame f2 flame"></div>
+      <div class="flame f3 flame"></div>
+      <div class="burner"></div>
+    </div>
+    <div class="cooked-title">You're cooked!</div>
+    <p class="cooked-sub">Three wrong answers. Bubbelah has been <strong>boiled</strong>. Terrible for the shrimp. Great for the drama.</p>
+    <button id="continue" class="primary">Continue with a fresh Bubbelah</button>
+    <button id="restart" class="secondary">Restart game</button>
+  </div>
+</div>
+
+<script>
+const Q = [
+["Which sovereign state has the greatest number of land borders with other countries?",["China","Russia","Brazil","DR Congo"],0,"China and Russia are tied at 14 land neighbors; by common counts both share the record. This question accepts China."],
+["Which two countries are separated by the Wakhan Corridor?",["Tajikistan & Pakistan","Uzbekistan & China","Iran & Tajikistan","Pakistan & Turkmenistan"],0,"Afghanistan's narrow Wakhan Corridor keeps Tajikistan and Pakistan from sharing a border."],
+["The exclave of Cabinda belongs to which country?",["Angola","Republic of the Congo","Gabon","DR Congo"],0,"Cabinda is an Angolan exclave on the Atlantic coast, separated from the rest of Angola by a strip of DR Congo."],
+["Which capital lies closest to the Equator?",["Quito","Kampala","Nairobi","Libreville"],0,"Quito sits just south of the Equator; the city center is roughly a quarter degree south."],
+["Which country contains the easternmost point of mainland Africa?",["Somalia","Kenya","Djibouti","Mozambique"],0,"Ras Hafun in Somalia is generally identified as mainland Africa's easternmost point."],
+["Which river flows through or along the borders of the greatest number of European countries?",["Danube","Rhine","Dnieper","Elbe"],0,"The Danube itself passes through or borders 10 countries."],
+["Which of these is NOT one of the countries bordering Lake Tanganyika?",["Rwanda","Burundi","Tanzania","Zambia"],0,"Lake Tanganyika borders Burundi, DR Congo, Tanzania, and Zambia — not Rwanda."],
+["Nakhchivan is an exclave of which country?",["Azerbaijan","Armenia","Georgia","Turkey"],0,"Nakhchivan is an autonomous exclave of Azerbaijan, separated from the rest of the country by Armenia."],
+["Which national capital is located on the Daugava River?",["Riga","Vilnius","Tallinn","Minsk"],0,"Riga, Latvia, sits on the Daugava near its mouth on the Gulf of Riga."],
+["The Caprivi Strip is a narrow extension of which country?",["Namibia","Botswana","Zambia","Angola"],0,"The Caprivi Strip is Namibia's narrow northeastern extension."],
+["Which country has coastlines on both the Caspian Sea and the Persian Gulf?",["Iran","Azerbaijan","Turkmenistan","Iraq"],0,"Iran reaches the Caspian in the north and the Persian Gulf/Gulf of Oman in the south."],
+["Which island is divided between Indonesia, Malaysia, and Brunei?",["Borneo","New Guinea","Timor","Sulawesi"],0,"Borneo is shared by Indonesia, Malaysia, and Brunei."],
+["Which African country is almost completely surrounded by Senegal?",["The Gambia","Guinea-Bissau","Lesotho","Eswatini"],0,"The Gambia follows the Gambia River and is surrounded by Senegal except for its Atlantic coast."],
+["Which country owns the Åland Islands?",["Finland","Sweden","Estonia","Denmark"],0,"The Åland Islands are an autonomous, demilitarized region of Finland."],
+["Which capital sits at the confluence of the Blue Nile and White Nile?",["Khartoum","Juba","Addis Ababa","Cairo"],0,"The two main Nile tributaries meet at Khartoum, Sudan."],
+["Which country has the world's southernmost national capital?",["New Zealand","Chile","Argentina","Australia"],0,"Wellington, New Zealand, is the southernmost capital of a sovereign state."],
+["The Fergana Valley is principally shared by which three countries?",["Uzbekistan, Kyrgyzstan, Tajikistan","Kazakhstan, Uzbekistan, Turkmenistan","Kyrgyzstan, China, Tajikistan","Afghanistan, Uzbekistan, Tajikistan"],0,"The densely populated Fergana Valley spans Uzbekistan, Kyrgyzstan, and Tajikistan."],
+["Which country has territory on the island of Hispaniola besides the Dominican Republic?",["Haiti","Cuba","Jamaica","Bahamas"],0,"Hispaniola is divided between Haiti and the Dominican Republic."],
+["Which strait separates the Indonesian islands of Java and Sumatra?",["Sunda Strait","Lombok Strait","Makassar Strait","Malacca Strait"],0,"The Sunda Strait lies between Java and Sumatra."],
+["Which country is home to the autonomous region of Gagauzia?",["Moldova","Romania","Ukraine","Bulgaria"],0,"Gagauzia is an autonomous territorial unit in southern Moldova."],
+["Which country surrounds the Spanish exclave of Llivia?",["France","Portugal","Andorra","Morocco"],0,"Llívia is Spanish territory entirely surrounded by France."],
+["Which major city straddles both Europe and Asia across the Bosporus?",["Istanbul","Baku","Tbilisi","Thessaloniki"],0,"Istanbul spans both shores of the Bosporus, placing it in both Europe and Asia."],
+["Which country contains the geographic region known as Transnistria?",["Moldova","Ukraine","Romania","Serbia"],0,"Transnistria is internationally recognized as part of Moldova."],
+["Which of these countries does NOT border the Mekong River?",["Myanmar","Thailand","Cambodia","Malaysia"],3,"Malaysia does not border the Mekong. The river runs through or along China, Myanmar, Laos, Thailand, Cambodia, and Vietnam."],
+["Which country has the shortest coastline on the Adriatic Sea?",["Slovenia","Bosnia and Herzegovina","Montenegro","Albania"],1,"Bosnia and Herzegovina has a tiny Adriatic coast around Neum."]
+];
+
+let order=[], i=0, score=0, streak=0, wrong=0, locked=false, gameStarted=false;
+const $=x=>document.getElementById(x);
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+
+function shrimpHappy(){
+  [740,980,1240].forEach((f,k)=>setTimeout(()=>tone(f,.075),k*70));
+  sparkleBurst(["✨","🫧","💖","🦐"]);
+}
+function shrimpOops(){
+  [430,330,245].forEach((f,k)=>setTimeout(()=>tone(f,.09),k*75));
+  sparkleBurst(["🫧","💧","😳"]);
+}
+function sparkleBurst(chars){
+  const r=$("shrimp").getBoundingClientRect();
+  for(let k=0;k<9;k++){
+    let s=document.createElement("span");s.className="sparkle";s.textContent=chars[k%chars.length];
+    s.style.left=(r.left+r.width/2)+"px";s.style.top=(r.top+r.height/2)+"px";
+    s.style.setProperty("--dx",((Math.random()-.5)*180)+"px");
+    s.style.setProperty("--dy",((-35-Math.random()*120))+"px");
+    document.body.appendChild(s);setTimeout(()=>s.remove(),850);
+  }
+}
+function updateHeat(){
+  document.querySelectorAll(".pan-dot").forEach((d,k)=>d.classList.toggle("hot",k<wrong));
+}
+function tone(f,d){
+  try{
+    let a=new (AudioContext||webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();
+    o.frequency.value=f;o.type="triangle";o.connect(g);g.connect(a.destination);
+    g.gain.setValueAtTime(.06,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);
+    o.start();o.stop(a.currentTime+d)
+  }catch(e){}
+}
+function boilSound(){
+  try{
+    let a=new (AudioContext||webkitAudioContext)(), n=a.createBufferSource(), b=a.createBuffer(1,a.sampleRate*1.25,a.sampleRate), d=b.getChannelData(0);
+    for(let j=0;j<d.length;j++) d[j]=(Math.random()*2-1)*(0.14*(1-j/d.length)+0.02*Math.sin(j/400));
+    n.buffer=b;
+    const hp=a.createBiquadFilter(); hp.type="highpass"; hp.frequency.value=350;
+    n.connect(hp); hp.connect(a.destination); n.start();
+  }catch(e){}
+}
+
+function start(){
+  order=shuffle(Q);i=0;score=0;streak=0;wrong=0;
+  $("cook").classList.add("hidden");
+  $("shrimp").className="shrimp";
+  render();updateHeat()
+}
+function render(){
+  locked=false;let q=order[i];
+  $("score").textContent=score;$("streak").textContent=streak;$("lives").textContent="❤️".repeat(3-wrong)+"🩶".repeat(wrong);
+  $("num").textContent=i+1;$("total").textContent=order.length;$("progress").style.width=(i/order.length*100)+"%";
+  $("question").textContent=q[0];$("feedback").textContent="";$("next").classList.add("hidden");$("shrimp").className="shrimp";
+  let choices=q[1].map((x,n)=>({x,n})); choices=shuffle(choices);let box=$("answers");box.innerHTML="";
+  choices.forEach(c=>{let b=document.createElement("button");b.className="ans";b.textContent=c.x;b.onclick=()=>answer(b,c.n,q);box.appendChild(b)})
+}
+function answer(btn,n,q){
+  if(locked)return;locked=true;let good=n===q[2];
+  document.querySelectorAll(".ans").forEach(b=>{b.disabled=true;if(b.textContent===q[1][q[2]])b.classList.add("good")});
+  if(good){
+    score+=100+streak*20;streak++;$("shrimp").classList.add("correct");
+    $("feedback").textContent="Correct. Bubbelah remains raw and powerful. "+q[3];
+    shrimpHappy();
+  } else {
+    wrong++;streak=0;btn.classList.add("bad");$("shrimp").classList.add("wrong");
+    $("feedback").textContent="Incorrect. The water gets hotter. "+q[3];
+    shrimpOops();updateHeat();
+  }
+  $("score").textContent=score;$("streak").textContent=streak;$("lives").textContent="❤️".repeat(Math.max(0,3-wrong))+"🩶".repeat(Math.min(3,wrong));$("next").classList.remove("hidden");
+  if(wrong>=3)setTimeout(cook,700)
+}
+function next(){i++;if(i>=order.length){alert("Atlas conquered. Final score: "+score+". Bubbelah's reputation remains oceanic and elite.");start()}else render()}
+function cook(){
+  $("cook").classList.remove("hidden");
+  boilSound();
+}
+function fresh(){
+  wrong=0;$("cook").classList.add("hidden");updateHeat();next()
+}
+$("next").onclick=next;
+$("continue").onclick=fresh;
+$("restart").onclick=start;
+$("startGame").onclick=()=>{
+  gameStarted=true;
+  $("intro").classList.add("hidden");
+  start();
+};
+// Prime the visible HUD without starting the question sequence yet.
+$("total").textContent=Q.length;
+$("question").textContent="Ready when you are.";
+$("answers").innerHTML="";
+$("feedback").textContent="Bubbelah is currently raw, calm, and geographically dangerous.";
+$("progress").style.width="0%";
+updateHeat();
+</script>
+</body>
+</html>
