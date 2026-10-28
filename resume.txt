@@ -14,7 +14,7 @@ early stage companies with acquisition.
 
 SELECTED RESULTS
 ----------------
-  $1k -> $9.5M ARR     at Trainwell as first growth leader; $30M+ revenue since
+  $1k -> $9.5M ARR     at Trainwell as first growth leader; $40M+ revenue since
   3 -> 125 employees   at Trainwell, scaled as COO
   2 publications       IEEE and Towards Data Science
 
@@ -26,13 +26,13 @@ Chief Operating Officer — Trainwell                          Feb 2021 - Presen
   * Trainwell is a 1-on-1 remote personal trainer and fitness app that has helped
     tens of thousands of people build healthier habits.
   * Drove B2C ARR from $1k to $9.5M as growth leader before hiring a head
-    of growth; scaled to $30M+ in revenue in the years since.
+    of growth; scaled to $40M+ in revenue in the years since.
   * Scaled the company from 3 to 125 employees as COO.
   * Acquired customers on both $0 and $6.5M marketing budgets.
   * Supported execution of a large-scale partnership with Peloton.
   * Oversee all marketing/growth, customer support, and operations.
 
-VP of Business Development — Trainwell                     Feb 2020 - Nov 2021
+VP of Growth — Trainwell                                   Feb 2020 - Nov 2021
   * First full-time hire.
   * Found initial user traction using the Bullseye framework outlined by
     Gabriel Weinberg (DuckDuckGo).

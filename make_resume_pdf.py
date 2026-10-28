@@ -52,7 +52,7 @@ def section(title, yy):
 
 # --- results strip ---
 y = section("Selected results", y)
-metrics = [("$1k \u2192 $9.5M ARR", "as first growth leader; $30M+ revenue since"),
+metrics = [("$1k \u2192 $9.5M ARR", "as first growth leader; $40M+ revenue since"),
            ("3 \u2192 125 employees", "scaled as COO at Trainwell")]
 mx = M
 for num, lab in metrics:
@@ -67,13 +67,13 @@ y -= 30
 y = section("Experience", y)
 JOBS = [
     ("Chief Operating Officer", "Trainwell", "Feb 2021 \u2013 Present", [
-        "Drove B2C ARR from $1k to $9.5M as growth leader; company reached $30M+ revenue in the years since.",
+        "Drove B2C ARR from $1k to $9.5M as growth leader; company reached $40M+ revenue in the years since.",
         "Scaled the company from 3 to 125 employees.",
         "Acquired customers on both $0 and $6.5M marketing budgets.",
         "Supported execution of a large-scale partnership with Peloton.",
         "Own all marketing and growth, customer support, and operations.",
     ]),
-    ("VP of Business Development", "Trainwell", "Feb 2020 \u2013 Nov 2021", [
+    ("VP of Growth", "Trainwell", "Feb 2020 \u2013 Nov 2021", [
         "First full-time hire. Found initial user traction using the Bullseye framework (Gabriel Weinberg, DuckDuckGo).",
     ]),
     ("Data Analyst", "PNC Bank", "Feb \u2013 Sep 2020", [
