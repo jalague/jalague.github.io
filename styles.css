@@ -70,12 +70,6 @@ img { max-width: 100%; height: auto; border-radius: var(--radius); }
 .nav-links a { color: var(--stone); font-size: 14.5px; font-weight: 500; }
 .nav-links a.active, .nav-links a:hover { color: var(--ink); text-decoration: none; }
 .nav-inner { flex-wrap: wrap; }
-.updated {
-  font-size: 12.5px; color: var(--stone); white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  border-left: 1px solid var(--line); padding-left: 16px;
-}
-@media (max-width: 760px) { .updated { border-left: none; padding-left: 0; flex-basis: 100%; } }
 
 /* ---------- small labels ---------- */
 .mono, .metric-num, .tick { font-variant-numeric: tabular-nums; }
@@ -196,6 +190,7 @@ h2 {
 footer { background: var(--accent-ink); color: var(--foot-text); padding: 56px 0; }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: center; }
 footer a { color: #fff; }
+footer .foot-title { font-size: 20px; color: #fff; }
 footer .foot-links { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14.5px; }
 footer .copyright { font-size: 13px; color: var(--foot-dim); width: 100%; margin-top: 8px; }
 footer .foot-note { font-size: 14px; color: var(--foot-text); margin-top: 6px; max-width: 42ch; }
@@ -225,6 +220,23 @@ article.post .prose blockquote {
 article.post .prose img { margin: 18px 0; }
 article.post .prose .formula { font-family: var(--code); font-size: 15px; background: var(--paper-2); padding: 14px 18px; border-radius: var(--radius); overflow-x: auto; }
 .back-link { font-size: 15px; font-weight: 500; }
+.back-link + h2 { margin-top: 22px; }
+
+/* ---------- projects: recent + archive dropdown ---------- */
+.group-title { font-size: 22px; font-weight: 700; letter-spacing: -0.015em; margin: 0 0 18px; }
+details.archive { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
+details.archive summary {
+  cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 12px;
+}
+details.archive summary::-webkit-details-marker { display: none; }
+details.archive summary::before {
+  content: "+"; color: var(--accent); font-weight: 500; font-size: 24px; line-height: 1; width: 14px;
+}
+details.archive[open] summary::before { content: "\2212"; }
+details.archive summary .group-title { margin: 0; }
+details.archive summary:hover .group-title { color: var(--accent-ink); }
+details.archive summary .count { font-size: 15px; color: var(--stone); }
+details.archive .archive-intro { color: var(--stone); max-width: 62ch; margin: 12px 0 26px; }
 
 /* ---------- collapsible book lists ---------- */
 details.booklist {

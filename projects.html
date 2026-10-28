@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — John LaGue</title>
-<meta name="description" content="Older projects, school work, and case studies by John LaGue: data science, machine learning, and visualization.">
+<meta name="description" content="Recent projects by John LaGue, plus an archive of data science, machine learning, and visualization work.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400..800;1,400..600&display=swap" rel="stylesheet">
@@ -23,16 +23,16 @@
       <a href="projects.html">Projects</a>
       <a href="personal.html">Personal</a>
     </div>
-    <span class="updated">Last updated: Oct 28, 2026</span>
   </div>
 </nav>
 
 <main>
 <section class="block">
   <div class="wrap">
-    <span class="eyebrow">Archive</span>
     <h2>Projects &amp; case studies</h2>
-    <p class="section-intro">Current side projects up top, then data science work from school, hackathons, and interview take-homes. Older, but each one drove a real result.</p>
+    <p class="section-intro">What I'm working on now, plus an archive of data science work from school, hackathons, and interview take-homes.</p>
+
+    <h3 class="group-title">Recent</h3>
     <div class="work-grid">
 
       <div class="card">
@@ -55,6 +55,13 @@
         <p>A single-page tracker for our dog Dewey: meals, walks, poop count, medications, active treatments, and an all-important insolence meter that ranges from "angel baby" upward.</p>
         <div class="result">Live at deweydog.com, used daily</div>
       </div>
+
+    </div>
+
+    <details class="archive" id="archive">
+      <summary><h3 class="group-title">Archive</h3><span class="count">8 projects</span></summary>
+      <p class="archive-intro">Data science work from school, hackathons, and interview take-homes. Older, but each one drove a real result.</p>
+      <div class="work-grid">
 
       <div class="card">
         <span class="tick">Machine learning · R · Python</span>
@@ -112,24 +119,33 @@
         <div class="result">Shipped, played, enjoyed</div>
       </div>
 
-    </div>
+      </div>
+    </details>
   </div>
 </section>
+<script>
+  // open the archive when someone links straight to it
+  if (location.hash === "#archive") document.getElementById("archive").open = true;
+</script>
 </main>
 
-<footer>
+<footer id="contact">
   <div class="wrap">
     <div>
-      <strong style="font-size:20px; color:#fff;">Get in touch.</strong><br>
+      <strong class="foot-title">Get in touch.</strong><br>
       <a href="mailto:john@johnlague.com">john@johnlague.com</a>
       <div class="foot-note">I'm open to helping early stage companies with acquisition.</div>
     </div>
     <div class="foot-links">
       <a href="index.html">Home</a>
-      <a href="blog/index.html">Blog</a>
+      <a href="projects.html">Projects</a>
       <a href="personal.html">Personal</a>
+      <a href="blog/index.html">Blog</a>
+      <a href="https://www.linkedin.com/in/john-lague/">LinkedIn</a>
+      <a href="https://github.com/jalague/">GitHub</a>
+      <a href="downloads/john-lague-resume.pdf">Resume</a>
     </div>
-    <div class="copyright">© johnlague.com · Pittsburgh, PA</div>
+    <div class="copyright">&copy; johnlague.com, Pittsburgh, PA. Last updated Oct 28, 2026.</div>
   </div>
 </footer>
 
