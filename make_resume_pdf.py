@@ -2,16 +2,18 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.lib.colors import HexColor
 from reportlab.pdfgen import canvas
+import os
 
-PAPER = HexColor("#F8F8F4")
-INK = HexColor("#21272E")
-STONE = HexColor("#5C6570")
-ACCENT = HexColor("#196E6A")
-LINE = HexColor("#DCDFD6")
+PAPER = HexColor("#FFFFFF")
+INK = HexColor("#1B2436")
+STONE = HexColor("#586274")
+ACCENT = HexColor("#24477D")
+LINE = HexColor("#DDE1E8")
 
 W, H = letter
 M = 0.6 * inch
-c = canvas.Canvas("/home/claude/site/downloads/john-lague-resume.pdf", pagesize=letter)
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads", "john-lague-resume.pdf")
+c = canvas.Canvas(OUT, pagesize=letter)
 c.setTitle("John LaGue — Resume")
 c.setAuthor("John LaGue")
 
@@ -27,7 +29,7 @@ c.setFont("Helvetica-Bold", 10)
 c.drawRightString(W - M, y + 3, "COO at Trainwell")
 y -= 15
 c.setFillColor(STONE)
-c.setFont("Courier", 8.3)
+c.setFont("Helvetica", 8.3)
 c.drawString(M, y, "Pittsburgh, PA  |  john@johnlague.com  |  johnlague.com  |  linkedin.com/in/john-lague")
 y -= 14
 c.setStrokeColor(LINE); c.setLineWidth(0.9); c.line(M, y, W - M, y)
@@ -41,20 +43,20 @@ y -= 22
 
 def section(title, yy):
     c.setFillColor(ACCENT)
-    c.setFont("Courier-Bold", 8.2)
+    c.setFont("Helvetica-Bold", 8.2)
     c.drawString(M, yy, title.upper())
     c.setStrokeColor(LINE); c.setLineWidth(0.6)
-    tw = c.stringWidth(title.upper(), "Courier-Bold", 8.2)
+    tw = c.stringWidth(title.upper(), "Helvetica-Bold", 8.2)
     c.line(M + tw + 8, yy + 3, W - M, yy + 3)
     return yy - 16
 
 # --- results strip ---
 y = section("Selected results", y)
-metrics = [("$1k \u2192 $10M ARR", "as first growth leader; $30M+ revenue since"),
+metrics = [("$1k \u2192 $9.5M ARR", "as first growth leader; $30M+ revenue since"),
            ("3 \u2192 125 employees", "scaled as COO at Trainwell")]
 mx = M
 for num, lab in metrics:
-    c.setFillColor(INK); c.setFont("Courier-Bold", 13.5)
+    c.setFillColor(INK); c.setFont("Helvetica-Bold", 13.5)
     c.drawString(mx, y, num)
     c.setFillColor(STONE); c.setFont("Helvetica", 8.4)
     c.drawString(mx, y - 12, lab)
@@ -65,7 +67,7 @@ y -= 30
 y = section("Experience", y)
 JOBS = [
     ("Chief Operating Officer", "Trainwell", "Feb 2021 \u2013 Present", [
-        "Drove B2C ARR from $1k to $10M as growth leader; company reached $30M+ revenue in the years since.",
+        "Drove B2C ARR from $1k to $9.5M as growth leader; company reached $30M+ revenue in the years since.",
         "Scaled the company from 3 to 125 employees.",
         "Acquired customers on both $0 and $6.5M marketing budgets.",
         "Supported execution of a large-scale partnership with Peloton.",
@@ -98,7 +100,7 @@ for role, org, when, bullets in JOBS:
     rw = c.stringWidth(role, "Helvetica-Bold", 10.6)
     c.setFillColor(ACCENT); c.setFont("Helvetica", 9.6)
     c.drawString(M + rw + 6, y, "\u00b7 " + org)
-    c.setFillColor(STONE); c.setFont("Courier", 7.8)
+    c.setFillColor(STONE); c.setFont("Helvetica", 7.8)
     c.drawRightString(W - M, y + 1, when)
     y -= 14
     c.setFont("Helvetica", 9.3)
@@ -111,7 +113,7 @@ for role, org, when, bullets in JOBS:
 # --- bottom columns ---
 y -= 2
 col_y = y
-c.setFillColor(ACCENT); c.setFont("Courier-Bold", 8.2)
+c.setFillColor(ACCENT); c.setFont("Helvetica-Bold", 8.2)
 c.drawString(M, col_y, "EDUCATION")
 c.drawString(M + (W - 2 * M) * 0.36, col_y, "SKILLS")
 c.drawString(M + (W - 2 * M) * 0.72, col_y, "PUBLICATIONS & AWARDS")
@@ -147,9 +149,9 @@ yy3 = wrapped("Towards Data Science (2019); IEEE IEMCON (2018). Most Impactful G
 # footer
 c.setStrokeColor(LINE); c.setLineWidth(0.9)
 c.line(M, M + 18, W - M, M + 18)
-c.setFillColor(STONE); c.setFont("Courier", 7.4)
+c.setFillColor(STONE); c.setFont("Helvetica", 7.4)
 c.drawString(M, M + 8, "johnlague.com")
-c.drawRightString(W - M, M + 8, "Last updated August 2026")
+c.drawRightString(W - M, M + 8, "Last updated October 2026")
 
 c.showPage()
 c.save()
